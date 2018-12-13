@@ -1,1 +1,44 @@
 \chapter{结论}
+\label{sec:Conclusion}
+
+Encrypted deduplication applies deterministic encryption, and leaks the frequencies of plaintexts. This paper revisits the security vulnerability  due to frequency analysis, and demonstrates that encrypted deduplication is even more vulnerable towards inference attacks. We propose two new frequency analysis attacks, both of which  achieve high inference rate and high inference precision, while under different assumptions of adversarial knowledge. We empirically evaluate our attacks with three real-world datasets, present a variety of new observations about their natures, and further analyze how they bring actual damages. We also discuss the advantages and disadvantages of possible countermeasures to advise practitioners for securely implementing and deploying encrypted deduplication storage systems. 
+
+
+% types of files are especially insecure under these attacks.    
+% We propose two new inference attacks, which augment the prior attack \cite{li17} with high precision inference and relaxed adversarial knowledge, respectively.   
+% While prior work \cite{li17} has illustrated the vulnerability  via frequency analysis, this paper presents an in-depth study on the security of encrypted deduplication, and       
+ We pose three directions for future work. First, we consider a complete old backup as the auxiliary information, and do not study how to launch attack if the adversary only has partial knowledge about the old backup. Possibly, we can still apply the frequency analysis attacks to extract characteristics from the available partial backup, and infer ciphertext-plaintext pairs by comparing the characteristics with those in the target backup. One direction is can we design advanced inference attacks, which  perform better than directly applying our attacks in this partial knowledge case?  
+ 
+ 
+ % The attack effectiveness depends on how the information in the partial backup correlates with the target backup.       
+ Second, we adjust the parameters of the frequency analysis attacks based on their effectiveness, which can only be learnt after the attacks have happened. We do not study how to derive the optimal parameters from auxiliary information beforehand. Future work may do better. 
+ 
+ % We believe the parameter configurations depend on the characteristics of workloads, but do not see how to derive them efficiently.     
+ 
+ % the frequency analysis attacks are parameter sensitive. We adjust parameters based on the attack effectiveness (that can only be measured after the attack happens), and do not study how to identify the optimal parameter configuration  beforehand. We believe the parameter configurations depend on the characteristics of workloads, but do not see how to derive them efficiently. Future work may do better.    
+ 
+ % our proposed attacks are parameter sensitive. In evaluation, we adjust the parameters based on attack results, and report the security vulnerability of encrypted deduplication under some {\em specific} parameter settings of our attacks. We do not  study how to identify the optimal parameter setting of attack without the knowledge of attack results. We begin to consider that the attack configurations possibly depend on the characteristics of target workloads, but do not see how to derive them. Future work may do better. 
+
+% help practitioners and researchers better understand the security issues in encrypted deduplication storage and motivate more research along this direction.
+% While 
+% of encrypted deduplication
+% Although it is vulnerable to frequency analysis, prior work \cite{li17} shows that classical frequency analysis can only infer a few original chunks in practice. This paper considers to increase the effectiveness of frequency analysis with additional leakages. Specifically, we present three new inference attacks by exploiting the size and order leakages that have been witnessed in deduplication systems \cite{xia11,lillibridge09,zhu08,douceur02, wilcox-ohearn08, bellare13b}. We evaluate the effectiveness of  our attacks with real-world datasets, and show that they can infer significant amount of original data under different types of workloads. We also discuss possible countermeasures to address the leakage channels exploited by our attacks. We pose the following future works.   
+
+Third, we do not implement  attack prototypes against real-world encrypted deduplication storage systems. Another direction is to deploy our attack design and 
+report the vulnerability of encrypted deduplication in practice.
+
+
+
+
+
+
+
+
+% - Our attacks are parameter sensitive. One direction is to explore the relationship between configuration and workload characteristics.
+
+% - There seems a tradeoff between size-based attack and distribution-based attack. Throughout our experiment, size-based attack operates big chunks better, since they have more variances on chunk size. The distribution-based attack is expected to operate small chunks better, because there exists more chunk locality between small chunks.
+
+% - To defend our attacks, one approach is to obfuscate the chunk distributions. A recent work suggests to add redundant chunks to mix up network traffic. It works for changing chunk distribution, but depends on knowing if a chunk is duplicate before deduplication. 
+
+% - This paper aims to report the vulnerabilities of encrypted deduplication, while not target on implementing a real attack against practical encrypted deduplication systems. Another direction is deploy our attack design in practice to alert the vulerabilities of encrypted deduplication.  
+

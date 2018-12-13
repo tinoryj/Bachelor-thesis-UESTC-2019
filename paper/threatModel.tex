@@ -1,1 +1,233 @@
 \chapter{威胁模型分析}
+\label{sec:ThreatModel}
+
+In this section, we formulate the threat model for our proposed frequency
+analysis attacks against encrypted deduplication.  
+
+\section{Definitions}
+\label{sec:ThreatModel-Definitions}
+
+We first provide the definitions for our threat model. We model a plain file
+as an ordered list of $n$ {\em logical plaintexts} (i.e., logical chunks
+before deduplication), denoted by $\mathbf{M} = \langle \hat{M}^{(1)},
+\hat{M}^{(2)}, \ldots, \hat{M}^{(n)}\rangle$.  Each logical plaintext
+$\hat{M}^{(i)}$ (where $1\le i\le n$) is encrypted via MLE into the
+corresponding ciphertext $\hat{C}^{(i)}$, and all encrypted results of
+$\mathbf{M}$ form a stream of $n$ {\em logical ciphertexts} $\mathbf{C} =
+\langle \hat{C}^{(1)}, \hat{C}^{(2)}, \ldots, \hat{C}^{(n)} \rangle$.  Note
+that the logical ciphertexts in $\mathbf{C}$ are also ordered to reflect the
+deduplication processing sequence of an encrypted deduplication storage
+system.  
+
+Identical logical plaintexts and ciphertexts may appear at different positions
+of $\mathbf{M}$ and $\mathbf{C}$, respectively.  We denote a unique plaintext
+as $M$ (uniquely identified by its tag), which is encrypted via MLE to the
+corresponding unique ciphertext $C$.  Each $M$ (resp. $C$) corresponds to one
+or multiple identical copies of $\hat{M}^{(i)}$ (resp. $\hat{C}^{(i)}$).  
+
+% of $\mathbf{M}$ is
+% independently encrypted into corresponding ciphertext $C$ via MLE, and all encrypted results     
+
+% A unique plaintext (or plaintext for short) $M$ has one or more copies in $\mathbf{M}$  
+% Identical plaintexts may have multiple copies in $\mathbf{M}$, and we introduce unique plaintext  
+% We define a unique plaintext as the plaintext that has unique content among other plaintexts of $\mathbf{M}$    
+% Let $M$ and $C$ be a
+% plaintext and its corresponding ciphertext, respectively; both of them are in
+% units of chunks defined by deduplication.  We model a plain file before
+% deduplication as an {\em ordered} list of $n$ plaintexts, denoted by
+% $\mathbf{M} = \langle M^{(1)},  M^{(2)}, \ldots, M^{(n)}\rangle$.  Identical
+% plaintexts may appear at different positions of $\mathbf{M}$, say $M^{(i)} =
+% M^{(j)}$ for some $1\le i \neq j\le n$.   
+% % Also, each plaintext can have the
+% same or different chunk sizes due to fixed-size or variable-size chunking,
+% respectively, and let $|M|$ denote the size of a plaintext $M$.  
+% Let $M$ and $C$ denote a
+% plaintext (i.e., a logical chunk before encryption) and its corresponding
+% ciphertext (i.e., a logical chunk after encryption).  We model a plain file
+
+\section{Adversarial Goals and Assumptions}
+\label{sec:ThreatModel-Assumptions}
+
+We consider an adversary that aims to infer a set of ciphertext-plaintext
+pairs, denoted by \{$(C, M)$\}, with two specific goals:
+\begin{itemize}[leftmargin=*]
+\item
+{\bf High inference rate:} A large fraction of correct ciphertext-plaintext pairs
+are inferred, among all correct ciphertext-plaintext pairs (i.e., high recall or
+low false negative rates in statistical terms).
+\item
+{\bf High inference precision:} A large fraction of ciphertext-plaintext pairs
+are correct, among all inferred ciphertext-plaintext pairs (i.e., high precision
+or low false positive rates in statistical terms).
+\end{itemize}
+  
+We assume that the adversary is {\em honest-but-curious}, such that it can
+passively monitor the stream of ciphertexts $\mathbf{C}$ being written to the
+storage system and exploit different types of leakage information from
+$\mathbf{C}$ (see Section~\ref{sec:leakage}).  Given the available leakage
+information, the adversary aims to infer the original plaintext of each
+ciphertext in $\mathbf{C}$ via a {\em ciphertext-only} attack.  It is possible
+that the adversary knows a limited subset of ciphertext-plaintext pairs to
+launch a known-plaintext attack, which further strengthens attack severity
+\cite{li17}.  We do not consider the known-plaintext attack in this paper. 
+
+%We treat $\mathbf{C}$ as the {\em view} by the
+%adversary and model different properties of the view 
+
+We assume that the adversary does not have access to any {\em metadata} that
+contains the information about how chunks are operated and stored, as we do
+not apply deduplication to the metadata and hence it can be protected by
+traditional symmetric encryption.  Also, we assume that the adversary does not
+have {\em active} capabilities, which can be independently prevented by
+existing approaches. One example is that a malicious client may claim the
+ownership of unauthorized files in client-side deduplication
+\cite{harnik10,halevi11,mulazzani11}; it can be addressed by
+proof-of-ownership \cite{halevi11,xu13,pietro12} or server-side deduplication
+\cite{harnik10,li15}.  Another example is that a malicious storage system may
+modify stored data; it can be detected by remote integrity checking
+\cite{juels07,ateniese07}. 
+
+% In addition, $\mathcal{A}$ does not aim to infer if
+% particular files have been stored \cite{harnik10, ritzdorf16}. Instead, we
+% study the security implication based on the inferred contents over different
+% types of files (see \S\ref{sec:case}).. 
+% Intuitively, we want to guarantee that what $\mathcal{A}$ can learn is some
+% well defined leakage $\mathcal{L}$, which includes the frequency, logical
+% order and/or chunk size (\S\ref{sec:leakage}). 
+% Note that $\mathcal{A}$ is specific to a {\em passive} adversary with content
+% inference in mind. We do not assume $\mathcal{A}$ has {\em active}
+% capabilities,   
+
+\section{Leakage Channels}
+\label{sec:ThreatModel-Leakage}
+
+We consider three types of leakage channels in encrypted deduplication storage
+that enable an adversary to infer information:
+\begin{itemize}[leftmargin=*]
+\item
+{\bf Frequency:}  Due to the deterministic nature of encrypted deduplication,
+the frequency of each ciphertext in $\mathbf{C}$ before deduplication (i.e., 
+the number of duplicate copies) can be mapped to that of its corresponding
+plaintext in $\mathbf{M}$. 
+% the size of each ciphertext in
+% $\mathbf{C}$ is approximately equal to that of its corresponding plaintext in
+% $\mathbf{M}$. In other words, the exact number of blocks (e.g., that are of size 16 bytes) in ciphertexts   
+% the exact number of blocks in the plaintext equals the number of blocks in the ciphertext
+% {\bf PC: if block cipher is used, it's not necessary that the
+% plaintext has the same size as its ciphertext}.
+%(e.g., \cite{douceur02, wilcox-ohearn08, bellare13b}) do not pad ciphertexts
+%with additional data to avoid storage overhead, 
+\item
+{\bf Order:}  Some storage systems (e.g., \cite{xia11,lillibridge09,zhu08})
+apply deduplication to the chunks in the same order as they appear in the
+original file.  Thus, the order of ciphertexts in $\mathbf{C}$ can be mapped
+to that of plaintexts in $\mathbf{M}$. 
+\item
+{\bf Size:}  Variable-size chunking (see Section~\ref{sec:background}) leads
+to different chunk sizes of the ciphertexts.  If such ciphertexts are not
+padded (to avoid storage overhead \cite{ritzdorf16}), the size of a ciphertext
+in $\mathbf{C}$ can be mapped to that of its corresponding plaintext in
+$\mathbf{M}$.    
+\end{itemize}
+
+%We also consider other leakage channels that are specific to real-world
+%deduplication storage systems. First, {\em order leakage} exposes the logical
+%order of each plaintext, and it is available for the systems
+%\cite{xia11,lillibridge09,zhu08} that aim for high performance and operate
+%the deduplication of chunks in the same order as these chunks appear in
+%original files; this implies that the logical order of ciphertext in
+%$\mathbf{C}$ exactly reflects that of its corresponding plaintext. Second,
+%{\em size leakage} exposes the chunk size of each plaintext, since some
+%systems \cite{douceur02, wilcox-ohearn08, bellare13b} avoid storage
+%overhead and do not pad ciphertexts with any additional data; this
+%implies that the size of ciphertext in $\mathbf{C}$ exactly equals that
+%of its corresponding plaintext.
+
+In addition, the adversary has access to some {\em auxiliary information} that
+presents the ground truth about the data characteristics correlated with
+$\mathbf{M}$. Note that the availability of auxiliary information is necessary
+for any inference attack \cite{kumar07,li17,grubbs17,zhang16b,kellaris16,ritzdorf16,naveed15,cash15,islam12}.
+In this work, we consider the auxiliary information as an ordered list of
+previously known plaintexts (e.g., old user backups or VM disk images),
+denoted by $\mathbf{A}$.  Clearly, the attack severity depends on the
+correlation between $\mathbf{A}$ (i.e., the previously known plaintexts) and
+$\mathbf{M}$ (i.e., the plaintexts that are to be inferred).  Our focus is not
+to address how an adversary can obtain auxiliary information, possibly due to
+careless data release \cite{careless-release}, stolen storage devices
+\cite{stolen-device}, and cloud leakage \cite{cloud-leakage}. Instead, given
+such information, we investigate how the available auxiliary information,
+combined with the leakage channels, bring information leakage from encrypted
+deduplication. 
+
+We focus on frequency analysis \cite{alkadit92} as the attack methodology.
+Classical frequency analysis sorts the unique ciphertexts in $\mathbf{C}$ and
+the unique plaintexts in $\mathbf{A}$ by {\em frequency} (i.e., the number of
+identical copies corresponding to each unique ciphertext or unique plaintext). 
+It then relates each unique ciphertext in $\mathbf{C}$ with the unique
+plaintext in $\mathbf{A}$ that has the same frequency rank. In the following
+sections, we design sophisticated frequency analysis attacks against encrypted
+deduplication. 
+
+
+% Frequency analysis is a cryptanalysis primitive to relate the ciphertexts in $\mathbf{C}$  with the plaintexts in $\mathbf{M}$. Specifically, it sorts ciphertexts and plaintexts by their frequencies in $\mathbf{C}$ and $\mathbf{A}$, respectively, and maps each ciphertext to the plaintext that has the same frequency rank. Building on the classical version of frequency analysis, we show how to exploit leakage channels to strengthen its severity against encrypted deduplication. 
+
+
+% infer ciphertext-plaintext pairs from $\mathbf{C}$ and $\mathbf{A}$. 
+ % Specifically, the adversary 
+
+% It performs well, only when the frequency of ciphertext is correlated with that of the corresponding plaintext. 
+% The more correlated to $\mathbf{M}$,  
+
+% Our focus is not to address its availability, which is due to careless data release \cite{careless-release}, stolen storage devices \cite{stolen-device}, and cloud leakage \cite{cloud-leakage}. Instead, we show how an adversary can launch inference attacks based on the available auxiliary information $\mathbf{A}$. 
+
+% Our focus is not to address how to obtain accurate auxiliary information, which we pose as future work; instead, given the available auxiliary information, we study how an adversary can design a severe attack based on frequency analysis and how we can defend against the attack
+% Some available auxiliary information has been demonstrated to be necessary for inference attacks  and we consider the auxiliary information $\mathbf{M}$ as a complete user backup, file system snapshot or VM disk image in plaintext. The rationale of its availability is that the adversary can obtain the original data from  We emphasize that the auxiliary information $\mathbf{M}$ does not need to be identical with the original file of $\mathbf{C}$. In other words, $\mathbf{M}$ may not have the
+% same number of chunks with $\mathbf{C}$, or its $i$-th chunk $M^{\langle i \rangle}$ may not be the plaintext of $C^{\langle i \rangle}$ or even not mapped into $\mathbf{C}$. 
+% {\bf PC: give the background on frequency analysis.}
+
+
+
+
+% We assume that the adversary can take advantage of some   for attacks. The auxiliary information , and it has been demonstrated for necessity in inference attacks . In this work,  
+
+% In addition, the adversary can exploit other deduplication-specific leakage channels.
+
+% effectiveness of inference attacks. First, we consider {\em size leakage}, meaning that the adversary can derive the size of a plaintext directly based on the corresponding ciphertext: ${\sf s}(C) = |M|$, where $C$ is the encryption of $M$.   
+
+% deduplication-specific leakage channels.
+
+% We target inference attacks against {\em backup workloads}, which refer to the copies of primary data (e.g., application states, file systems, and virtual disk images) over time. The recent technology trend \cite{douglis17} suggests to create full backups (that store the complete data of the primary source) over traditional incremental backups (that only store the changes of data since the last full backup), so as to mitigate the overhead in restoring earlier (full) backups. Thus, we focus on inferring information from different versions of full backups (or backups for short) that are created based on the same primary data source at different times.   
+
+% They can be created as either weekly full backups (that store the complete data of the primary source) or daily incremental backups (that only store the changes of data since the prior full backup). Informed by the technology trend , we focus on full backups (or {\em backups} for short). Specifically, we aim to infer information from different versions of backups that are created based on the same primary data source yet at different times.    
+
+% To launch attacks, we assume that $\mathcal{A}$ is an ``{\em honest-but-curious}'' adversary that can compromise the server hosting deduplication service, while it cannot establish a long-term presence for attack. Intuitively, we want to guarantee that what $\mathcal{A}$ can learn is some well defined leakage $\mathcal{L}$, which includes the frequency, logical order and/or chunk size (\S\ref{sec:leakage}). Formally, we define these leakage channels based on a target victim file $\mathbf{M}_{\rm t}$:
+
+% \begin{itemize}[leftmargin=*]
+% 	\item  {\bf Frequency leakage}: $\mathcal{L}_{\rm freq} = \{(C, {\sf freq}(M)): M \in \mathbf{M}_{\rm t}$ and $C = {\sf E}_{K_M}(M) \}$ is a set of chunk-frequency pairs, where $C$ is the encryption of some plaintext chunk $M$ in $\mathbf{M}_{\rm t}$, and each pair $(C, {\sf freq}(M))$ leaks the corresponding frequency of $M$. 
+
+% 	\item  {\bf Order leakage}: $\mathcal{L}_{\rm order} = \{(C, {\sf ord}(M)): M\in\mathbf{M}_{\rm t}$ and $C = {\sf E}_{K_M}(M) \}$ associates each ciphertext chunk $C$ with a set ${\sf ord}(M)$ of logical orders, at which the copies of its original chunk $M$ appear in $\mathbf{M}_{\rm t}$. Note that order leakage {\em implies} frequency leakage, since the logical orders of each chunk copy inherently includes the number of times the corresponding chunk appears.    
+
+% 	\item  {\bf Size leakage}: $\mathcal{L}_{\rm size} = \{(C, {\sf size}(M)): M \in \mathbf{M}_{\rm t}$ and $C = {\sf E}_{K_M}(M) \}$ is a set of chunk-size pairs, where each pair leaks the size of the original chunk of $C$.
+% \end{itemize}
+
+% In addition, $\mathcal{A}$ can take advantage of the {\em auxiliary information} $\mathbf{M}_{\rm a}$ that presents the ground truth about the frequency, size and order information about plaintext chunks. Some available auxiliary information is necessary for inference attacks , and we focus on validating our attacks with the auxiliary information obtained from different types of storage workloads (see \S\ref{sec:dataset}). 
+
+% Acquiring the above capabilities, $\mathcal{A}$'s primary goal is to recover the plaintext chunks in the target file $\mathbf{M}_{\rm t}$. More formally, given the leakage $\mathcal{L}$ (that can be some combination of $\mathcal{L}_{\rm freq}$, $\mathcal{L}_{\rm order}$ and $\mathcal{L}_{\rm size}$) and the auxiliary information $\mathbf{M}_{\rm a}$, $\mathcal{A}$ outputs a collection of ciphertext-plaintext chunk pairs $\mathcal{R} = \{ (C, M) \}$: $\mathcal{A}(\mathcal{L}, \mathbf{M}_{\rm a}) \rightarrow \mathcal{R}.$ Each output pair $(C, M)$ indicates $\mathcal{A}$'s guess that relates a ciphertext chunk $C$ with a plaintext chunk $M$. 
+
+% identify the ciphertext-plaintext chunk pairs about $\mathbf{M}_{\rm tar}$. More formally, given the leakage $\mathcal{L}$ (that can be some combinations of $\mathcal{L}_{\rm freq}$, $\mathcal{L}_{\rm order}$ and $\mathcal{L}_{\rm size}$), and auxiliary information $\mathbf{M}_{\rm aux}$, $\mathcal{A}$ outputs a collection of ciphertext-plaintext chunk pairs $\mathcal{R} = \{ (C, M) \}$: $\mathcal{A}(\mathcal{L}, \mathbf{M}_{\rm aux}) \rightarrow \mathcal{R}.$ Each pair $(C, M)$ indicates $\mathcal{A}$'s guess that relates a ciphertext chunk $C$ with a plaintext chunk $M$. 
+
+
+% a malicious server may corrupt stored chunks, yet it can be detected by integrity checking mechanisms \cite{juels07,ateniese07};  
+
+% and it is a correct inference by $\mathcal{A}$ if $C$ is the actual encryption of $M$, i.e., $(M, C) \in \mathcal{E}$.
+
+
+% We measure the success of attacks in several ways. The {\em raw inference rate} is the percentage of ciphertext chunks (including duplicates) that are inferred correctly over the total number of ciphertext chunks in the target information. For example, if the adversary correctly infers a ciphertext-plaintext chunk pair $(C, M)$ and the ciphertext chunk $C$ accounts for a fraction of 10\% in the target information, then the raw inference rate will be at least 10\%. 
+
+
+% We assume the adversary can eavesdrop the deduplication processing (e.g., comparison operation of fingerprints) of all ciphertext chunks in a victim file (called {\em target information}); on the other hand, it cannot access related metadata that can be protected by traditional encryption \cite{li17}. 
+% the same and different private sources, as well as some public source .    
+
+% Note that $\mathcal{A}$ is specific to a passive adversary with content recovery in mind. We do not abstract $\mathcal{A}$ with active capabilities, since these threats can be protected by existing approaches. For example, a malicious server may corrupt stored chunks, yet it can be detected by integrity checking mechanisms \cite{juels07,ateniese07}; a malicious client may cheat owning a particular file \cite{harnik10,halevi11,mulazzani11}, yet it can be addressed by proof of ownership \cite{halevi11} or enforcing server-side deduplication \cite{li15}. 
+
+

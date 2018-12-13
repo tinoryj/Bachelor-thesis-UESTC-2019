@@ -1,1 +1,210 @@
 \chapter{相关工作}
+\label{sec:RelatedWork}
+
+\noindent
+{\bf MLE instantiations:}  
+Recall from Section~\ref{sec:background} that MLE \cite{bellare13a} formalizes the
+cryptographic foundation of encrypted deduplication.  The first published MLE
+instantiation is convergent encryption (CE) \cite{douceur02}, which uses the
+cryptographic hash of a plaintext and its corresponding ciphertext as the
+MLE key and the tag, respectively.  Other CE variants include: hash convergent
+encryption (HCE) \cite{bellare13a}, which derives the tag from the plaintext
+while still using the hash of the plaintext as the MLE key; random convergent
+encryption (RCE) \cite{bellare13a}, which encrypts a plaintext with a fresh
+random key to form a non-deterministic ciphertext, protects the random key by
+the MLE key derived from the hash of the plaintext, and attaches a
+deterministic tag derived from the plaintext for duplicate checks; and
+convergent dispersal (CD) \cite{li15}, which extends CE to secret sharing by
+using the cryptographic hash of a plaintext as the random seed of a secret
+sharing algorithm.  Since all the above instantiations derive MLE keys and/or
+tags from the plaintexts {\em only}, they are vulnerable to the offline
+brute-force attack \cite{bellare13b} if the plaintext is {\em predictable}
+(i.e., the number of all possible plaintexts is limited) , as an adversary can
+exhaustively derive the MLE keys and tags from all possible plaintexts and
+check if any plaintext is encrypted to a target ciphertext (in CE, HCE, and
+CD) or mapped to a target tag (in RCE).  The brute-force attack has been
+demonstrated to learn file information \cite{ce_attack}.
+
+%Suppose an adversary learns  that the underlying message of a target
+%ciphertext is drawn from a publicly available set. To recover the underlying
+%message, the adversary tries each possible message from the public set,
+%derives corresponding MLE key, and uses the derived key to decrypt the
+%target ciphertext. If the decryption result equals the tried message, the
+%adversary can deduce the underlying message.  
+
+% {\em HCE1} and {\em HCE2} \cite{bellare13a} derive tag from client side, and
+% upload it along with ciphertext for deduplication. They offer better
+% performance for the storage system, which can simply read the tag from
+% uploads rather than computing it by hashing a possibly long ciphertext.
+% {\em Random convergent encryption (RCE)} \cite{bellare13a} encrypts a
+% message with a fresh random key, and protects the random key with the  MLE
+% key of the message. RCE is more efficient, since it can combine both
+% encryption and key generation into a single concerted pass over the message
+% \cite{bellare13a}. On the other hand, RCE needs to attach a deterministic
+% tag to the random ciphertext for checking duplicates. In addition to
+% improving performance, {\em convergent dispersal} \cite{li15} replaces the
+% random input of secret sharing by the cryptographic hash of message, so as
+% to  augment CE with fault-tolerate storage.  
+  
+% CE has been implemented in a wide variety of storage systems \cite{adya02, elephantdrive, mega, gnunet, freenet, cryptosphere, cox02, storer08, anderson10}. 
+	
+% compute the tag $T = {\sf H}({\sf H}(M))$ as a double hash over plaintext message, and require to upload $T$ along with ciphertext for efficient deduplication. 
+% A special note is RCE needs to places an appropriate tag along with ciphertext for deduplication, since its ciphertext is random. 
+% Like HCE1 and HCE2, RCE , and 
+% the message encryption and MLE key derivation of RCE can be combined into a single concerted pass over the possibly long message.   
+
+To protect against the offline brute-force attack, DupLESS \cite{bellare13b}
+implements server-aided MLE by managing MLE keys in a standalone key server,
+which ensures that each MLE key cannot be derived from a message offline.
+DupLESS employs two mechanisms to achieve robust MLE key management: (i)
+oblivious key generation, in which a client always obtains a deterministic MLE
+key for a message from the key server without revealing the message content to
+the key server, and (ii) rate limiting, which limits the key generation
+requests from the client and prevents the online brute-force attack.  Other
+studies extend server-aided MLE to address various aspects, such as reliable
+key management \cite{duan14}, transparent pricing \cite{armknecht15},
+peer-to-peer key management \cite{liu15}, and rekeying \cite{qin17}.  However,
+server-aided MLE still builds on deterministic encryption.  To our
+knowledge, existing MLE instantiations (based on either CE or server-aided
+MLE) are all vulnerable to the inference attacks studied in this paper.  
+
+%In addition, existing MLE instantiations lack active protection against the
+%size 
+%vulnerabilities explored in this paper, since they generate deterministic
+%ciphertexts or tags for deduplication. In addition, they lack active
+%protection against the size and order leakages, which can be exploited to
+%increase the severity of frequency analysis.     
+
+%SS \cite{bellare13b}, follow-up studies (see \cite{shin17} for a complete
+%survey) address additional issues, including . Liu {\em et al.} \cite{liu15}
+%propose to encrypt each message with a random key, and share the key among
+%the clients that have the same message. This prevents brute-force attack due
+%to the use of random keys, while mitigating security dependence on a global
+%secret.  
+
+% All above MLE instantiations transform identical message to the same ciphertext or tag, and hence incur the frequency leakage. They also lack of active protection against the size and order leakages. 
+% via password-based key exchange. This addresses , and also prevents brute-force attack. 
+% Liu {\em et al.} \cite{liu15} propose to share encryption keys via a password-based key exchange protocol, so as to mitigate the dependence of the key manager. All above works apply deterministic encryption and are susceptible to frequency leakage. They also lack of active protection against the size and order leakages.
+
+\section{Attacks against (encrypted) deduplication:} In addition to the
+offline brute-force attack, previous studies consider various attacks against
+deduplication storage, and such attacks generally apply to encrypted
+deduplication as well.  For example, the side-channel attack
+\cite{harnik10,halevi11} enables adversaries to exploit the deduplication
+pattern to infer the content of uploaded files from target users or gain
+unauthorized access in client-side deduplication; it is shown that the
+side-channel attack (and other related attacks) was successfully launched
+against Dropbox in 2010 \cite{mulazzani11}.  The duplicate-faking attack
+\cite{bellare13a} compromises message integrity via inconsistent tags.
+Ritzdorf {\em et al.} \cite{ritzdorf16} exploit the leakage of the chunk size
+to infer the existence of files.  The locality-based attack \cite{li17}
+exploits frequency analysis to infer ciphertext-plaintext pairs.  Our
+work follows the line of work on inference attacks \cite{ritzdorf16,li17}, yet
+provides a more in-depth study of inference attacks against encrypted
+deduplication via various types of leakage. 
+   
+%Our distribution-based attack inherently implies the prior attack \cite{li17}
+%(see \S\ref{sec:distribution-attack-description}). We also propose the
+%clustering-based attack that does not need the knowledge of fine-grained
+%chunk orders.  
+\section{Defense mechanisms:} 
+Section~\ref{sec:countermeasure} discusses the countermeasures agasint the frequency, order and size leakage of encrypted deduplication. 
+Additional defense mechanisms are designed to protect against other types of attacks.  
+% Several countermeasures are designed to defend
+% against the attacks on encrypted deduplication.  
+As mentioned above,
+server-aided MLE \cite{bellare13b} can defend against the offline brute-force
+attack. Server-side deduplication \cite{li15,harnik10,armknecht17} and
+proof-of-ownership \cite{xu13,pietro12,halevi11} can defend against the
+side-channel attack.  Server-side tag generation \cite{douceur02,bellare13b}
+and guarded decryption \cite{bellare13a} can defend against the
+duplicate-checking attack.  
+
+% MinHash encryption \cite{qin17} disturbs the
+% frequency ranking of ciphertexts and is shown to defend against the frequency
+% analysis based on the locality-based attack via trace analysis.  Several
+% extended MLE instantiations build on strong cryptographic primitives to defend
+% against the inference attacks, such as randomized encryption that supports
+% equality testing \cite{abadi13}, hybrid encryption \cite{stanek14}, and
+% interactions with fully homomorphic encryption \cite{bellare15}, yet how they
+% are implemented and deployed in practice remains unexplored. 
+
+\section{Inference attacks:}  Several inference attacks have been proposed
+against encrypted databases
+\cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18} and 
+keyword search \cite{zhang16b,grubbs16,pouliot16,cash15,islam12}.  They all
+exploit the deterministic encryption nature to identify different types of
+leakage.  Our work differs from them by specifically focusing on frequency analysis against encrypted
+deduplication. 
+
+%construct inference attacks against encrypted databases. Naveed {\em et al.}
+%\cite{naveed15} propose attacks to recover the plaintext records of {\em
+%CryptDB} \cite{popa11a}. Kellaris {\em et al.} \cite{kellaris16} and
+%Lacharite {\em et al.} \cite{lacharite18} analyze the volumes of the data
+%returned by range queries, and present generic reconstruction attacks on
+%database entries. Grubbs {\em et al.} \cite{grubbs16}, Bindschaedler {\em
+%et al.} \cite{bindschaedler17}, and Durak {\em et al.} \cite{durak16}
+%show how to recover the plaintexts from the database column encrypted by
+%order-revealing encryption. 
+%
+%target keyword search. Islam {\em et al.} \cite{islam12} exploit the leakage of access pattern, and recover the plaintext keywords associated with files. Cash {\em et al.} \cite{cash15} and Pouliot \cite{pouliot16} examine the security of searchable encryption under different leakage profiles. Zhang {\em et al.} \cite{zhang16b} propose file-injection attacks to recover searchable keywords. Grubbs \cite{grubbs16} build attacks against {\em Mylar} \cite{popa14} that is a practical system with keyword search enabled.    This paper differs from the above works \cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18,zhang16b,grubbs16,pouliot16,cash15,islam12} by launching inference attacks against encrypted deduplication.   
+
+
+%Other studies \cite{zhang16b,grubbs16,pouliot16,cash15,islam12} target keyword search. Islam {\em et al.} \cite{islam12} exploit the leakage of access pattern, and recover the plaintext keywords associated with files. Cash {\em et al.} \cite{cash15} and Pouliot \cite{pouliot16} examine the security of searchable encryption under different leakage profiles. Zhang {\em et al.} \cite{zhang16b} propose file-injection attacks to recover searchable keywords. Grubbs \cite{grubbs16} build attacks against {\em Mylar} \cite{popa14} that is a practical system with keyword search enabled.    This paper differs from the above works \cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18,zhang16b,grubbs16,pouliot16,cash15,islam12} by launching inference attacks against encrypted deduplication.   
+
+
+%Client-side deduplication leaks the side channel information that if
+%particular messages have already been stored. Harnik {\em et al.}
+%\cite{harnik10} and Halevi {\em et al.} \cite{halevi11} show how to exploit
+%the side channel leakage for different purposes, including creating covert
+%channels between clients and gaining access to unauthorized information.
+
+%Some studies \cite{stanek14,abadi13,bellare15} aim to achieve stronger security than the more practical schemes focused above. Stanek {\em et al.} \cite{stanek14} design a hybrid encryption scheme where unpopular messages are protected by semantically secure encryption for high security guarantee, while popular messages are protected by CE to enable deduplication. On the other hand, the scheme \cite{stanek14} builds on public-key primitive which is inefficient for encrypting large-size messages. Abadi {\em et al.} \cite{abadi13} construct two schemes for the messages whose distributions are publicly available. Their first scheme generates  random tags and ciphertexts to prevent frequency leakage, yet incurring expensive {\em equality test} for checking duplicates. Their second scheme produces deterministic ciphertexts, and exposes the frequencies of corresponding plaintexts. Interactive MLE \cite{bellare15} introduces interactions into encrypted deduplication, and strengthens the security of both correlated and parameter-dependent messages, yet it is impractical for the use of fully homomorphic encryption. On the contrary to these theoretical contributions \cite{stanek14, abadi13, bellare15}, this paper focuses on the applied aspect, and investigates the security vulnerabilities in practical deduplication.   
+
+
+% {\em Duplicate-faking attack} \cite{bellare13a} compromises the integrity of data by inconsistent tags. Specifically, an adversary can attach a maliciously-generated ciphertext to a faking tag $T$, so that the following legitimate messages that have the same tag of $T$ will be removed by deduplication. It can be addressed by server-side tag generation \cite{douceur02, bellare13b} or guarded decryption \cite{bellare13a}.
+
+% or introducing a random threshold to control client-side or server-side deduplication \cite{,harnik10}.   
+
+% Our second attack augments the prior work \cite{li17} with distribution-based ranking and achieves high inference rate and accuracy. We   
+%Some studies \cite{bosman16,gruss15,xiao13} investigate the side channels of memory deduplication, and this paper differs from them in considering deduplication in outsourced storage (e.g., cloud storage).
+
+% \paragraph{Property-revealing encryption:}
+% Encrypted deduplication leaks the underlying equality of plaintext chunks for detecting duplicates. A generalized {\em property-revealing encryption} \cite{bindschaedler17} has been studied for securing database storage \cite{curtmola06,bellare07,bellare09,boldyreva09,boldyreva11,popa11}. This paper differs from these works as it targets unstructured workloads. 
+
+% both theory \cite{curtmola06,bellare07,bellare09,boldyreva09,boldyreva11} and practice \cite{popa11}. 
+
+% illustrate the weakness of searchable encryption.
+
+
+% present reconstruction attacks by analyzing ; 
+
+
+% \cite{grubbs17,bindschaedler17,zhang16b,grubbs16,kellaris16,pouliot16,durak16,naveed15,cash15,islam12,lacharite18}  Regarding databases,    Regarding keyword search, ; further 
+
+% under different leakage settings;  
+
+
+
+
+% classical frequency analysis against cryptdb.    
+
+
+% -specific cryptographic primitives of deterministic encryption. 
+
+
+% applications.    
+
+
+% structured relational data or 
+
+% based on frequency analysis. 
+
+% % Frequency analysis has been applied in prior works \cite{grubbs17,bindschaedler17,zhang16b,grubbs16,kellaris16,pouliot16,durak16,naveed15,cash15,islam12,lacharite18} to construct inference attacks. Some attacks target , by classical frequency analysis \cite{naveed15}, exploring correlations or orderings of table columns, . 
+
+% while these approaches either target structured relational data \cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18} or aim to recover keywords of files \cite{zhang16b,grubbs16,pouliot16,cash15,islam12}, and cannot be applied to infer a huge number of chunks.  
+% % Traditional MLE (e.g., CE) builds on a {\em public} function (e.g., the hash function) to derive encryption keys, and it is susceptible to brute-force attack \cite{bellare13a} that can be used to . The weakness can be addressed by server-aided MLE \cite{bellare13b}.  
+%  % posted by the side-channel leakage in client-side and cross-user deduplication. 
+%  % This paper differs from these attacks in considering an adversary from the server side.  
+
+

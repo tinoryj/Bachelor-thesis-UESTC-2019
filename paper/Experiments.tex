@@ -1,1 +1,741 @@
 \chapter{实验测试与分析}
+\label{sec:Experiment}
+
+In this section, we present the trace-driven evaluation results to demonstrate
+the severity of our proposed frequency analysis attacks against encrypted
+deduplication.
+
+\section{Methodology}
+\label{sec:dataset}
+
+\begin{table}[!t]
+    \caption{Characteristics of experimental datasets.}
+\small
+\label{tab:dataset}
+\renewcommand{\arraystretch}{1.2}
+\vspace{-3pt}
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+ \multirow{2}{*}{\bf Dataset} & \multirow{2}{*}{\bf Category} & \multicolumn{2}{c|}{\bf Characteristics in Each Snapshot} \\
+\cline{3-4}
+    & &  \#Logical (Million) & \#Unique (Million) \\
+\hline
+    \multirow{6}{*}{FSL} & User004  & 1.0-1.3 & 0.7-0.9\\
+ \cline{2-4}
+              & User007 &  3.5-5.2 & 2.3-3.6 \\
+ \cline{2-4}
+              & User012 &  25.0-26.4 & 8.9-9.7 \\
+\cline{2-4}
+              & User013 &  1.8-5.7 & 1.2-4.2 \\
+\cline{2-4}
+              & User015 &  13.4-20.5 & 9.0-11.0 \\
+\cline{2-4}
+              & User028 &  6.0-10.3 & 3.5-6.8 \\
+\hline
+\hline
+    \multirow{4}{*}{MS} & Win7  & 61.6-61.8 & 61.1-61.3\\
+\cline{2-4}
+              & Serv-03 & 10.6-10.7 & 8.4-8.5\\
+\cline{2-4}
+              & Serv-08 & $\sim$6.5 & $\sim$3.8 \\
+\cline{2-4}
+              & Vista-B &  $\sim$7.6 & $\sim$2.0\\
+\cline{2-4}
+              & Vista-U &  $\sim$21.0 & $\sim$10.4 \\
+\hline
+\hline
+
+    \multirow{6}{*}{VM} & User1  &  \multirow{6}{*}{2.6} & $\sim$0.9 \\
+\cline{2-2}
+\cline{4-4}
+              & User2 &  & 1.1-1.3 \\
+\cline{2-2}
+\cline{4-4}
+              & User3 &  & 0.9-1.1 \\
+\cline{2-2}
+\cline{4-4}
+              & User4 &  & $\sim$0.9 \\
+\cline{2-2}
+\cline{4-4}
+              & User5 &  & 0.9-1.0 \\
+\cline{2-2}
+\cline{4-4}
+              & User6 &  & 0.9-1.1 \\
+\hline
+\end{tabular}
+\medskip
+
+\raggedright
+    The notations \#Logical and \#Unique denote the total number of logical and unique chunks in each experimental snapshot, respectively. 
+    % All VM images have a fixed size of 10GB and hence the same number of logical chunks.
+\end{table}
+
+
+
+%\begin{table}[!t]
+%\small
+%\caption{Experimental datasets.}
+%\label{tab:dataset}
+%\renewcommand{\arraystretch}{1.2}
+%\vspace{-3pt}
+%\centering
+%\begin{tabular}{|c|c|c|}
+%\hline
+%{\bf Dataset} & {\bf Category} & {\bf Approximate Logical Size} \\
+%\hline
+%\hline
+%%\multirow{2}{*}{FSL} & Physical  & 431.9GB  & 659.3GB & 584.3GB \\
+%	\multirow{6}{*}{FSL} & User004  & 10GB/backup $\times$ 14 backups \\
+%\cline{2-3}
+%			  & User007 & 39GB/backup $\times$ 14 backups \\
+%\cline{2-3}
+%			  & User012 & 244GB/backup $\times$ 14 backups \\
+%\cline{2-3}
+%			  & User013 & 22GB/backup $\times$ 14 backups\\
+%\cline{2-3}
+%			  & User015 & 158GB/backup $\times$ 14 backups\\
+%\cline{2-3}
+%			  & User028 & 77GB/backup $\times$ 14 backups\\
+%\hline
+%\hline
+%\multirow{4}{*}{MS} & WIN7  & 425GB/snapshot $\times$ 4 snapshots \\
+%\cline{2-3}
+%			  & Serv-03 & 78GB/snapshot $\times$ 4 snapshots \\
+%\cline{2-3}
+%			  & Serv-08 & 48GB/snapshot $\times$ 4 snapshots \\
+%\cline{2-3}
+%			  & Vista-B & 55GB/snapshot $\times$ 4 snapshots \\
+%\cline{2-3}
+%			  & Vista-U & 159GB/snapshot $\times$ 4 snapshots \\
+
+%\hline
+%\hline
+
+%\multirow{6}{*}{VM} & User1  & 25GB/backup $\times$ 13 backups \\
+%\cline{2-3}
+%			  & User2 & 28GB/backup $\times$ 13 backups \\
+%\cline{2-3}
+%			  & User3 & 26GB/backup $\times$ 13 backups \\
+%\cline{2-3}
+%			  & User4 & 25GB/backup $\times$ 13 backups\\
+%\cline{2-3}
+%			  & User5 & 25GB/backup $\times$ 13 backups\\
+%\cline{2-3}
+%			  & User6 & 27GB/backup $\times$ 13 backups\\
+
+%% \multicolumn{2}{|c|}{\bf Storage saving} & 98.6\% & 98.3\% \\
+%\hline
+%\end{tabular}
+%\end{table}
+We evaluate our attacks using the following real-world datasets, whose
+characteristics are summarized in Table~\ref{tab:dataset}. 
+% Table~\ref{tab:dataset} summarizes the characteristics of the experimental datasets used in our experiments. 
+% We evaluate our attacks using the following datasets. 
+% investigate the security implications of the leakages (see \S\ref{sec:background}) by means of simulated attacks, 
+
+\begin{itemize}[leftmargin=*]
+\item 
+\textbf{FSL:} This dataset is collected by the File systems and
+        Storage Lab (FSL) at Stony Brook University \cite{sun16,FSL14,sun18}. We focus on
+the {\em fslhomes} snapshots, each of which includes an ordered list of 48-bit
+chunk hashes that are produced by variable-size chunking under an average size
+of 8KB, as well as the corresponding metadata information (e.g., chunk size,
+file name extension, etc). We pick the snapshots from January 22 to May 21 in
+2013, and select six users (i.e., User004, User007, User012, User013, User015,
+and User028) that have the complete daily snapshots over the whole duration.
+We collect these snapshots on a weekly basis, and hence form 14 weekly full
+backups for each user.  
+\item 
+\textbf{MS:} This dataset is collected by Microsoft
+\cite{meyer11} and publicized on SNIA \cite{ms}. The original dataset contains
+the Windows file system snapshots that span from September 5 to October 31,
+2009. Each snapshot is represented by the 40-bit chunk hashes under different
+average sizes obtained from Rabin fingerprinting \cite{rabin81}.  We focus on
+the snapshots that have been installed with the operating systems in the
+following categories: Windows 7 (Win7), Microsoft Windows Server 2003
+(Serv-03), Microsoft Windows Server 2008 (Serv-08), Microsoft Windows Vista
+Business Edition (Vista-B), and Microsoft Windows Vista Ultimate Edition
+(Vista-U). In each category, we pick four snapshots, each of which is
+configured with the average chunk size of 8KB.   
+\item 
+\textbf{VM:} This dataset is collected from a university programming course in
+Spring 2014. The original dataset includes a number of VM image snapshots for
+the students enrolled in the course, and each snapshot has a fixed size of
+10GB and is represented by the ordered list of SHA-1 hashes of 4KB fixed-size
+chunks. We focus on 6 users (i.e., User1-User6) and extract their snapshots
+into 13 weekly backups.  
+%Prior studies \cite{qin17, li15} have used some variants of the dataset for
+%different evaluation purposes, and we aim to validate the severity of the
+%clustering-based attack against VM disk images.   
+\end{itemize}
+
+Our datasets do not contain actual content, so we mimic the adversarial
+knowledge based on chunk hashes. Specifically, we use the ordered lists of
+chunk hashes in some snapshots as the auxiliary information $\mathbf{A}$ and
+the ground truth $\mathbf{M}$, respectively. To simulate encryption, we apply
+an additional hash function over each original chunk hash (that represents a
+plaintext) in $\mathbf{M}$, and truncate the result into an agreed number of
+bits specific to the used dataset. The truncated result mimics a ciphertext in
+$\mathbf{C}$. For each inferred ciphertext-plaintext pair $(C, M)$, we verify
+its correctness by applying the same simulated encryption on $M$ and comparing
+the result with $C$. Note that the clustering-based attack can operate at the
+segment level, and infer the ciphertext-plaintext segment pair $(S_\mathbf{C},
+S_\mathbf{A})$.  In this case, we check $(S_\mathbf{C}, S_\mathbf{A})$ by
+examining each ciphertext in $S_\mathbf{C}$ is exactly mapped from each
+plaintext in $S_\mathbf{A}$.
+
+% , although we cannot recover each chunk in the real attack.   
+% We count the leakage (see \S\ref{sec:threat}) of each ciphertext chunk, and use it for our inference attacks.  
+% MD5 on each hash (that represents a plaintext) in $\mathbf{M}$, and truncate the resulting hash into an agreed number of bits (e.g., 48-bit for FSL, 40-bit for MS, and 160-bit for VM).  
+
+We measure the severity of the attacks by the inference rate and the inference
+precision (see Section~\ref{sec:threat}). 
+
+\section{Results of Distribution-based Attack}
+\label{sec:experiment-distribution}
+
+\begin{figure*}[t]
+    \centering
+    \begin{tabular}{p{.31\textwidth}p{.31\textwidth}p{.31\textwidth}}
+        \multicolumn{3}{c}{\includegraphics[width=.7\textwidth]{pic/legend-fsl-line.pdf}} \smallskip \\
+        \includegraphics[width=.3\textwidth]{pic/distribution-impact-u.pdf} &
+        \includegraphics[width=.3\textwidth]{pic/distribution-impact-r.pdf} &
+	    \includegraphics[width=.3\textwidth]{pic/distribution-impact-t.pdf} \medskip \\
+        {\footnotesize 
+        \centering
+        (a) Impact of $u$: $r$ = 0; $t \rightarrow \infty$
+        } &
+        {\footnotesize
+        (b) Impact of $r$: $u$ = 128 for User004, User013 and User015, and $u$ = 256 for User007, User012 and User028; $t \rightarrow \infty$
+        } &
+        {\footnotesize
+        (c) Impact of $t$: $u$ = 128 for User004, User013 and User015, and $u$ = 256 for User007, User012 and User028; $r$ = 10
+        } \\
+    \end{tabular}
+    \caption{Experiment 1 (Impact of parameters): impact of $(u, r, t)$ in distribution-based attack.}
+    \label{fig:distribution-impact}
+\end{figure*}
+
+
+\subsection{Experiment 1 (Impact of parameters):}
+We evaluate the impact of the parameters $(u, r, t)$ in the distribution-based
+attack. We drive our evaluation using the FSL dataset, and use the 12th weekly
+backup of each user as the auxiliary information to infer original plaintexts
+in corresponding 14th weekly backup.  We configure $t \rightarrow \infty$ and $r$ = 0 to
+evaluate the impact of $u$ (in this case, the distribution-based attack
+reduces to the locality-based attack \cite{li17}). Our rationale is to avoid
+the disturbances by other parameters. 
+
+Figure~\ref{fig:distribution-impact}(a) shows the impact of $u$,
+when we vary $u$ from 2 to 512. Regarding inference rate, we have the same
+observation as the prior work \cite{li17}. Specifically, the inference rates
+first increase with $u$, since the attack can infer more ciphertext-plaintext
+pairs. After hitting the maximum values (e.g., 13.9\% for User004, 13.6\% for
+User007, 1.4\% for User012, 0.5\% for User013, 0.7\% for User015, and 6.1\%
+for User028), they decrease.  The reason is that the underlying frequency
+analysis introduces a large number of false positives that compromise the
+inferences over corresponding neighbors.    
+
+The prior work \cite{li17} does not report the inference precision about the
+attack. We observe that the inference precisions for all users are at a
+fairly low level (e.g., less than 40\%), except the case of $u = 2$ for
+User028 that does not introduce any false positives. On the other hand, the
+inference rate in the special case is about 0.0001\%, meaning that the attack
+only infers a few ciphertext-plaintext pairs. In addition, as $u$ increases,
+the inference precisions decrease slightly. For example, when $u$ increases
+from 2 to 512, the inference precision of User004 drops from 30.7\% to 12.8\%.      
+
+{\bf Observation (1) --} {\em A relatively larger $u$ increases the inference
+rate, yet it decreases the inference precision (i.e., more false positives are
+introduced). }
+
+Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and
+User015, and at 256 for User007, User012 and User028, respectively, in order
+to evaluate the impact of $r$ and $t$. 
+% {\bf Note that the configuration
+% exceeds the best one that leads to the highest inference rate. PC: I don't
+% quite understand???} 
+Our rationale is to increase the coverage of inferred ciphertext-plaintext
+pairs, while we use $r$ and $t$ to filter possibly false positives. 
+
+We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure~\ref{fig:distribution-impact}(b) shows the results. We observe that the
+inference rates of majority users increase with $r$. For example, when we vary
+$r$ from 0 to 16, the inference rates grow from 9.5\% to 16.0\%, from 10.0\%
+to 13.0\%, from 0.5\% to 0.7\%, and from 4.7\% to 5.6\% for User004, User007,
+User013, and User028, respectively. The reason is that the distribution-based
+attack addresses disturbances to frequency ranking, and infer more correct
+ciphertext-plaintext  pairs. On the other hand, the inference rates decrease
+slightly from 1.3\% to 0.8\% and from 0.6\% to 0.4\% for User012 and User015,
+respectively. The reason is that they examine a large range of plaintexts and
+may introduce more false positives. In addition, the inference precisions for
+all users are  at a low level (e.g., less than 45\%), and have similar
+tendencies with corresponding inference rates.  
+
+{\bf Observation (2) --} {\em A larger $r$ provides more opportunities of
+identifying correct ciphertext-plaintext pairs, yet it also increases the
+probability of having false positives.}   
+
+Then, we fix $r$ = 10 and evaluate the impact of $t$. 
+Figure~\ref{fig:distribution-impact}(c) shows the results. When $t$ is small
+(e.g., less than 0.5), we observe that the attack misjudges and filters a
+significant number of ciphertext-plaintext pairs, even they are correct. This
+introduces {\em false negatives} that reduce the inference rate. As $t$
+increases, the number of false negatives decreases.  When $t$ = 1.5, the
+inference rates hit the maximum values at 21.2\%, 18.2\%, 10.4\%, 1.2\%,
+1.2\%, and 13.5\% for User004, User007, User012, User013, User015, and
+User028, respectively. When $t$ further increases to 2, the corresponding
+inference rates drop to 20.5\%, 17.1\%, 8.3\%, 1.2\%, 1.0\%, and 11.2\%,
+respectively. The reason is that if $t$ is too large, it cannot filter false
+positives effectively. For the same reason, the inference precisions for all
+users decrease with $t$.  
+% The inference rates first  increase with $t$, since the number of false negatives (i.e., misjudge some correctly inferred ciphertext-plaintext pairs in filtering) are reduced.  
+
+% implies that the distribution-based attack  returns more incorrect ciphertext-plaintext chunk pairs, which affects attack severity.  
+
+
+{\bf Observation (3) --} {\em A smaller $t$ filters a large fraction of false
+positives, yet it introduces more false negatives.}   
+
+
+\subsection{Experiment 2 (Comparison with prior attack):}
+We compare the severity of the distribution-based attack with that of the
+locality-based attack \cite{li17}. In addition to using the FSL dataset like
+Experiment~1, we include the MS dataset for cross-dataset validation.
+Specifically, for each MS category, we choose two snapshots at a time, use one
+to infer the other, and evaluate the average inference rate and precision. 
+
+We consider the following attack instances for comparison. 
+%
+\begin{itemize}[leftmargin=*]
+\item 
+$\tt Baseline$: We re-implement the locality-based attack based on the
+parameter configuration suggested in \cite{li17}. Specifically, it infers 5
+most frequent ciphertext-plaintext pairs in the first invocation (i.e., to
+initialize a set of ciphertext-plaintext pairs for iteration) of frequency
+analysis, and 30 in each following invocation (i.e., to iteratively infer ciphertext-plaintext pairs from 
+ neighbors).  
+\item 
+$\tt Distribution$ and $\tt Distribution^S$: We consider two attack instances
+of the distribution-based attack, denoted by $\tt Distribution^S$ and ${\tt
+Distribution}$, which operate with and without size information,
+        respectively (i.e., the superscript $\tt S$ indicates that the attack instance operates with size information). 
+        We configure $\tt Distribution^S$ and ${\tt Distribution}$
+under the same configuration of  ${\tt Baseline}$. In addition, we choose
+$r$ and $t$ in both  $\tt Distribution^S$ and ${\tt Distribution}$ in the following way: for the FSL dataset, we fix $r$ = 10 for
+all users, and individually set $t$ = 1.5, 1.2, 1, 1, 0.7, and 0.9 for
+User004, User007, User012, User013, User015, and User028, respectively; for
+the MS dataset, we also fix $r$ = 10 for all categories, and set $t$ = 2 for
+Win7 and Serv-08, and $t$ = 1.6 for Vista-U, Serv-03, and Vista-B, respectively.
+This is informed by our tests for optimal configurations of the datasets.   
+\item 
+$\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$:
+We consider two additional distribution-based attack instances, denoted by $\tt Distribution$-$\tt o$
+and $\tt Distribution^S$-$\tt o$, which apply the same configurations for $r$ and $t$ as with $\tt Distribution$ and $\tt
+Distribution^S$, and further use larger $u$ to increase the
+coverage of inferred ciphertext-plaintext pairs.  
+        Specifically, we configure $u$ in $\tt Distribution$-$\tt o$
+and $\tt Distribution^S$-$\tt o$ in the following way:  
+        for the FSL
+dataset, we apply the same configuration of $u$ in Experiment~1; for the MS
+dataset, we set $u$ = 128 for Win7, and $u$ = 30 for Serv-03, Serv-08,
+Vista-B, and Vista-U. 
+        % Our rationale is to increase
+% the inference rate, while we expect  this only leads to a slight
+% degradation of the inference precision since the distribution-based attack
+% filters a large fraction of false positives. 
+\end{itemize}
+
+\begin{figure*}[t]
+    \centering
+    \begin{tabular}{c@{\hskip 2em}c}
+        \multicolumn{2}{c}{\includegraphics[width=.7\textwidth]{pic/legend-fsl-bar.pdf}} \smallskip \\
+        \includegraphics[height=2.1in]{pic/distribution-comparison-fsl.pdf} &
+        \includegraphics[height=2.1in]{pic/distribution-comparison-ms.pdf} \medskip \\
+        {\footnotesize 
+        (a) FSL dataset 
+        } &
+        {\footnotesize
+        (b) MS dataset 
+        } \\
+    \end{tabular}
+    \caption{Experiment 2 (Comparison with prior attack): comparison of attack severity for distribution-based attack and locality-based attack.}
+    \label{fig:distribution-comparison}
+\end{figure*}
+
+
+
+% \begin{itemize}[leftmargin=*]
+	% \item {\em Distribution-I:} We configure our proposed distribution-based attack with the {\em same} configuration of the baseline above. Informed by Experiment 3, we further choose the distribution-based ranking parameters in the following way: for the FSL dataset, we fix $r$ = 10 for all users, and individually set $t$ = 1.5, 1.2, 1, 1, 0.7, and 0.9 for User004, User007, User012, User013, User015, and User028; for the MS dataset, we fix $r$ = 10 for all categories, and configure $t$ as 2 for Win7 and Serv-08 and as 1.6 for Vista-U, Serv-03, and Vista-B, respectively.   
+
+	% \item {\em Distribution-II:} We configure our proposed distribution-based attack with the same ranking configuration of distribution-I, while building on a larger $u$ to infer more chunk pairs. The rationale is to increase inference rate, while we expect the inference precision is degraded slightly as the attack can filter out unreasonable inferences. Specifically, for the FSL dataset, we set $u$ = 128 for User004, User013 and User015, and $u$ = 256 for User007, User012 and User028, respectively; for the MS dataset, we set $u$ = 128 for Win7, and $u$ = 30 for Serv-03, Serv-08, Vista-B, and Vista-U, respectively.
+% \end{itemize}
+
+Figure~\ref{fig:distribution-comparison}(a) shows the
+comparison results of the FSL dataset. We observe that different instances of
+the distribution-based attack outperform the locality-based attack in almost
+all cases. For example, regarding User028, the lowest inference rate of the
+distribution-based attack is 11.4\%, with the precision of 84.1\% (due to $\tt
+Distribution$), while the corresponding inference rate and precision of
+$\tt Baseline$ are only 1.2\% and 1.7\%, respectively; this implies that the distribution-based attack reduces the number of false postives by 82.4\% in this case.   
+
+{\bf Observation (4) --} {\em The distribution-based attack significantly
+increases the inference precision, while achieving a higher inference rate than
+the locality-based attack.} 
+
+$\tt Distribution^S$ and $\tt Distribution^S$-$\tt o$ have higher inference
+precisions than $\tt Distribution$ and $\tt Distribution$-$\tt o$,
+respectively, since they further filter false positives by size information.
+For example, for User004, $\tt Distribution^S$ and $\tt Distribution^S$-$\tt o$  reduce the fraction of false positives in  $\tt Distribution$ and $\tt Distribution$-$\tt o$ from 35.2\% to 1.7\% and from 35.3\% to 2.2\%, respectively. However, in the same case,    
+ we observe that the inference rates of $\tt Distribution$ and $\tt Distribution$-$\tt o$ are 20.0\% and 21.2\%, slightly higher than those of  
+$\tt Distribution^S$ and
+$\tt Distribution^S$-$\tt o$ by 2.0\% and
+0.4\%, respectively. The reason is that $\tt Distribution$ and $\tt
+Distribution$-$\tt o$ infer a small number of correct results from the
+neighbors of incorrect ciphertext-plaintext pairs. In other words,  although
+$(C, M)$ is an incorrect ciphertext-plaintext pair, the neighbors of $C$ may
+correspond to those of $M$ with a small probability. Even in this case, all distribution-based attack instances are more severe than the locality-based attack instance. Specifically, the inference rate of $\tt Baseline$ is only 15.2\%, lower than those of the best and the worst distribution-based attack instances by 6.0\% and 2.8\%, respectively. 
+
+% For the same reason, $\tt Baseline$ has higher inference rate than $\tt Distribution^S$ in User013.   
+
+{\bf Observation (5) --} {\em Filtering incorrect inference results improves
+the inference precision, yet it degrades the coverage of inferred
+ciphertext-plaintext pairs and possibly decreases the inference rate.
+} 
+
+We further observe that although $\tt Distribution$-$\tt o$ and $\tt
+Distribution^S$-$\tt o$ build on larger $u$, their inference rates are just
+slightly higher than those of $\tt Distribution$ and $\tt Distribution^S$ by
+0.4\% and 0.9\%, respectively. The reason is that the distribution-based
+attack iterates inference just through neighbors, and has a bounded coverage
+of inferred ciphertext-plaintext pairs. The further increase of $u$ only adds
+a small number of new correct  ciphertext-plaintext pairs into results. 
+
+Figure~\ref{fig:distribution-comparison}(b) shows the
+results of the MS dataset. Both locality-based and distribution-based attacks
+have high inference rates and precisions in most MS categories (except Win7).
+The possible reason is that MS snapshots are highly correlated (e.g., the
+variance of the total number of chunks is small, as shown in
+Table~\ref{tab:dataset}).  We observe that the distribution-based attack still
+outperforms the locality-based attack. For example, in Vista-U, the inference
+rates and precisions of all inferences of the distribution-based attack are
+above 24.1\% and 96.4\%, while those of $\tt Baseline$ are 21.7\% and 87.1\%,
+respectively. 
+
+Note that both  distribution-based and  locality-based attacks have low
+inference rates (e.g., less than 0.01\%) in the Win7 category. The reason is
+ that Win7 includes a large fraction (e.g., more than 98.8\%, as shown in
+Table~\ref{tab:dataset}) of unique chunks, which cannot be correctly
+inferred by the frequency analysis attacks. 
+
+% We do not include Win7  in the comparison, since all attack instances have low effectiveness. We observe all attacks have higher severity than those in the FSL dataset.   
+
+
+
+\begin{figure*}[t]
+     \centering
+    \centering
+    \begin{tabular}{c@{\hskip 2em}c}
+        \multicolumn{2}{c}{\includegraphics[width=.25\textwidth]{pic/legend-effectiveness.pdf}} \smallskip \\
+        \includegraphics[height=2.2in]{pic/distribution-effectiveness-wo-size.pdf} &
+	\includegraphics[height=2.2in]{pic/distribution-effectiveness-w-size.pdf} \medskip \\
+        {\footnotesize 
+        (a) Distribution-based attack without size information  
+        } &
+        {\footnotesize
+        (b) Distribution-based attack with size information 
+        } \\
+    \end{tabular}
+	\caption{Experiment 3 (Attack effectiveness): severity of distribution-based attack in FSL dataset.}
+	\label{fig:experiment-distribution-effectiveness}
+\end{figure*}
+
+
+\subsection{Experiment 3 (Attack effectiveness):} We consider a long-term
+backup scenario and examine the effectiveness of the distribution-based attack
+with the FSL dataset. Specifically, we choose the $i$th FSL weekly backup of
+each user as the auxiliary information to infer original plaintexts in the corresponding $(i+w)$th FSL
+weekly backup. Clearly, the smaller $w$ is, the higher correlation between the
+auxiliary information and the target backup will be.  We configure the two  
+distribution-based attack instances $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$
+like Experiment~2, and evaluate their inference rates and inference precisions that
+are averaged for all available $i$ for each user. 
+
+Figure~\ref{fig:experiment-distribution-effectiveness}(a) shows the results. The
+distribution-based attack has varying inference rate and precision  across
+users. For example, in the favorable case like User004, it achieves the
+highest inference rates of 24.8\%, 24.5\%, and 24.0\% with the precisions of
+67.3\%, 67.0\%, and 66.5\% for $w$ = 1, 2, and 3, respectively; in the
+non-favorable case like User015, the inference rate of the distribution-based
+attack is only around 0.3\%. The possible reason is that the backup data from
+User015 has low chunk locality. 
+
+In addition, we observe that the correlation (i.e., $w$) of the auxiliary
+information has low impact on the effectiveness of the distribution-based
+attack.  For example, when $w$ increases from 1 to 3, it only leads to limited
+degradations on inference rate (e.g., less than 1.4\%) and precision (e.g.,
+less than 5.6\%). The reason is that the distribution-based attack addresses
+disturbances to frequency ranking and preserves attack effectiveness.  
+
+{\bf Observation (6) --} {\em The distribution-based attack can limit the
+degradation of attack effectiveness in the presence of loosely correlated
+auxiliary information.} 
+
+% We also use the instance in Experiment 2 to evaluate the effectiveness of the distribution-based attack that operates with
+ % size information. 
+ Figure~\ref{fig:experiment-distribution-effectiveness}(b) shows the results of $\tt Distribution^S$-$\tt o$. We observe that it has similar inference rate with $\tt Distribution$-$\tt o$,  
+ while achieving much higher precision. For example, the average inference precision of all users are 93.1\%, 92.8\%, and 92.4\% for $w$ = 1, 2, and 3, respectively.  
+
+% Figure~\ref{fig:experiment-distribution-severity-ms} shows the attack results of the MS dataset. The distribution-based attack achieves high severity. For example, it can infer 24.0\% of unique chunks in Vista-U with a precision of 96.2\%.    
+
+% Although there is l          
+
+\section{Results of Clustering-based Attack}
+\label{sec:experiment-clustering}
+
+
+
+
+\subsection{Experiment 4 (Impact of parameter):} We first evaluate the impact
+of the parameter $k$, which defines the upper bound distance
+in combining the closest clusters.  We use both the FSL and the VM datasets to
+study how $k$ affects the underlying clustering scheme in the attack.
+Specifically, we apply segmentation on the last backup of each considered FSL
+and VM user, respectively, and generate the segments that have a fixed size of
+4MB. 
+
+The clustering scheme aims to aggregate similar ciphertext segments into the
+same cluster, without compromising the confidentiality of chunks in each
+ciphertext segment.  To quantify its effect, we compare the results of
+clustering with those of a {\em real} classification approach, which directly
+classifies segments by their minimum chunk hash.  Suppose we generate $m$ real
+classes of segments by classification, and $\widetilde{m}$ clusters by the
+clustering scheme, respectively.  We consider {\em clustering closeness},
+evaluated by $\frac{{\sf abs}(m-\widetilde{m})}{m}$ (where 
+${\sf abs}(m-\widetilde{m})$ returns the absolute value of $m-\widetilde{m}$),
+which quantifies how the  number of clusters approximates that of real
+classes. In addition, let $\hat{m}$ be the number of clusters, in which all
+segments are similar (i.e., have the same minimum chunk hash). We also
+consider {\em clustering correctness}, evaluated by
+$\frac{\hat{m}}{\widetilde{m}}$, which quantifies how precisely the clustering
+scheme groups similar segments.  
+
+Figure~7(a) shows the results of the FSL dataset, where we
+consider four FSL users (e.g., User004, User007, User015 and User028) for
+saving evaluation time. The clustering closeness first increases with $k$,
+since the number (i.e., $\widetilde{m}$) of clusters decreases and
+approximates $m$. When $k$ increases further, the number of clusters drops
+away from $m$, and leads to the increase of clustering closeness.  In
+addition, we observe that the clustering correctness gradually decreases with
+$k$, because some of non-similar segments (i.e., their minimum chunk hashes are
+different) are aggregated into the same cluster. Both results suggest that we
+can configure an appropriate $k$ to balance the closeness and correctness of
+clustering. For example, when we set $k$ = 0.65 for User015, the corresponding
+closeness and correctness are 1.0\% and 94.2\%, respectively. This implies
+that the results of the clustering scheme  highly approximates
+those of real classification.             
+
+{\bf Observation (7) --} {\em By configuring an appropriate $k$ for
+clustering, we  approximate the results of  classifying segments, without the knowledge of  minimum chunk hash in each
+segment.}   
+
+Figure~7(b) shows the results of the VM dataset. We observe
+that the clustering closeness and correctness of all VM users have  similar
+tendencies with those of FSL users. When we configure $k$ = 0.8, the average
+clustering closeness of all VM users is only 3.0\%, while the corresponding
+clustering correctness is as high as 93.1\%.     
+
+
+\begin{figure*}[t]
+\centering
+    \begin{tabular}{cc@{\hspace{0.3in}}p{.32\textwidth}}
+    \includegraphics[width=.3\textwidth]{pic/clustering-impact-d-fsl.pdf} &
+    \includegraphics[width=.3\textwidth]{pic/clustering-impact-d-vm.pdf} & 
+    \includegraphics[width=.3\textwidth]{pic/clustering-effectiveness.pdf} \medskip \\
+{\footnotesize 
+        (a) FSL dataset } 
+&
+{\footnotesize 
+        (a) VM dataset } 
+        &  ~~~ \medskip \\
+        \multicolumn{2}{p{.64\textwidth}}{
+            \footnotesize Fig.~7\quad Experiment 4 (Impact of parameter): impact of $k$ in the clustering scheme; for clustering closeness, the smaller the better; for clustering correctness, the larger the better. } &
+        % \multicolumn{2}{c}{\footnotesize Fig.~6\quad Experiment 4 (Impact of parameter): show impact of $d$ with clustering closeness and correctness; for clustering closeness, the smaller the better; for clustering correctness, the larger the better.} &
+        {\footnotesize
+Fig.~8\quad Experiment 5 (Attack effectiveness):  severity of clustering-based attack in VM dataset.
+        }
+\end{tabular}
+    \hspace{-1in}
+\end{figure*}
+
+% \begin{figure}
+% 	\includegraphics[width=.48\textwidth]{pic/clustering-impact-d.pdf}
+% 	\caption{Experiment 6 (Impact of parameter).}
+% 	\label{fig:experiment-clustering-impact}
+% \end{figure}
+
+\begin{table*}[!t]
+\small
+    \caption{Experiment 6 (Security implications)}
+\renewcommand{\arraystretch}{1.2}
+\vspace{-3pt}
+ \begin{minipage}[t]{0.7\textwidth}
+\centering
+        (a) Distribution-based attacks \medskip \\
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+
+    \multirow{2}{*}{\bf Type} & \multirow{2}{*}{\bf Extension Name} & \multirow{2}{*}{\bf \centering Range of File Size}  & \multicolumn{2}{c|}{\bf Raw Inference Rate} \\ \cline{4-5} 
+    & & &  $\sf Distribution$-$\sf o$ & $\sf Distribution^S$-$\sf o$ \\ \hline
+\hline
+    Office & doc(x), ppt(x), xls(x) & 10KB-1MB   & 4.9\% & 5.3\%\\
+\hline
+    Picture & jpg, png &10-100KB  & 7.7\% & 6.7\% \\
+\hline
+    Source & c, h, cpp, java, py & 10-20KB   & 17.1\% & 15.0\%\\
+% \hline
+	% Library & .a, .dll, .so \\
+% \hline
+	% Compression & .bz2, .gz, tar, rar, zip, 7z \\
+\hline
+    Database & db, po & 20-700KB   & 2.6\% & 2.4\%\\
+\hline
+    Disk & vmdk, img & 200MB-1GB  & 15.8\% & 16.7\%\\
+\hline
+\end{tabular}
+\label{tab:file}
+ \end{minipage}
+\hfill
+    \begin{minipage}[t]{0.3\textwidth}
+    \centering
+        (b) Clustering-based attack \medskip \\
+    \begin{tabular}{|c|c|}
+    \hline
+        {\bf Users} & {\bf Raw Inference Rate} \\
+    \hline
+    \hline
+        1 & 13.2\% \\ 
+    \hline
+        2 & 22.4\% \\ 
+    \hline
+        3 & 25.7\% \\ 
+    \hline
+        4 & 28.4\% \\ 
+    \hline
+        5 & 18.5\% \\ 
+    \hline
+        6 & 30.8\% \\ 
+    \hline
+    \end{tabular}
+\label{tab:user}
+    \end{minipage}
+
+\end{table*}
+
+
+
+\subsection{Experiment 5 (Attack effectiveness):} We now study the
+effectiveness of the clustering-based attack. Due to the boundary shift of
+fixed-size segment, it has low effectiveness
+(about 1\% inference rate in our test) against the FSL dataset.  Thus, we use
+the VM dataset to examine its severity. To configure the attack, we set $k$ =
+0.8 for clustering, and $(u, r, t)$ = (5000, 100, 0.5) for relating ciphertext
+clusters to corresponding plaintext clusters.  
+
+In our micro-benchmarking, we find that the chunk-level inference in the
+clustering-based attack only infers thousands of chunks correctly, which
+contributes to a negligible inference rate (e.g., less than 0.01\%).  
+% The
+% reason is that each cluster includes a large number of chunks, and frequency
+% analysis is ineffective in this case. 
+Thus, we focus on the
+segment-level inference, which presents the bottom line of severity in the
+clustering-based attack. To be consistent with the chunk-level measurements, we count inference rate and precision based
+on the unique chunks in each correctly inferred segment. 
+
+We use the same evaluation methodology of Experiment~3, and report the results
+in Figure~8. Specifically, the x-axis describes the index $i$ (where 1 $\leq i \leq$
+12) of the VM backup that is used as the auxiliary information for attack,
+while the y-axis presents the average inference rate or precision of all VM
+users against the $(i+w)$th backup (where $w$ = 1, 2, and 3). We observe that both the inference rate and the inference
+precision fluctuate significantly. For example, when using the 3rd backup as
+the auxiliary information, the attack achieves the highest inference rates at
+18.1\%, 17.1\% and 16.3\%, with the precisions of 76.8\%, 75.0\% and 73.0\%
+for $w$ = 1, 2, and 3, respectively. 
+On the other hand, when using the 7th
+backup as the auxiliary information, the corresponding inference rates and
+precisions drop down to 9.6\% and 65.9\%, 6.8\% and 71.2\%, and 6.9\% and
+75.6\%, respectively. The reason is that the VM users have heavy updates after
+the 7th week, and this reduces the correlation  of adjacent backups. 
+On
+average, for $w$ = 1, 2 and 3, the clustering-based attack infers 15.8\%,
+14.0\%, and 12.6\% ciphertext-plaintext pairs, with the precisions of 71.1\%,
+69.1\%, and 68.9\%, respectively. 
+% This demonstrates high severity against
+% the VM disk images.   
+
+\section{Results of Security Implications}
+\label{sec:case}
+We thus far have examined the severity of inference attacks by quantifying the
+correctly inferred ciphertext-plaintext pairs.  However, it remains an open
+issue that what are the security implications informed by these results and
+how the frequency analysis attacks bring actual damage. In the following
+experiment, we evaluate the security implications of our attacks based on the
+{\em raw inference rate}, defined as the percentage of raw data content
+affected by correctly inferred chunks.   
+
+
+
+
+\subsection{Experiment 6 (Security implications):}
+We first consider the distribution-based attack, and evaluate its raw
+inference rate against {\em different types} of files. We drive the evaluation
+using the FSL dataset, since only the FSL dataset includes file metadata (that
+includes the extension names of files) in plaintext. Specifically, we focus on
+five types of files that have specific extension names (see
+Table~\ref{tab:file}(a)): office files ({\em Office}), picture files 
+({\em Picture}), programming source files ({\em Source}), database files 
+({\em Database}), and disk image files ({\em Disk}). These files occupy more
+than 60\% of raw content of FSL snapshots.   
+
+We apply the methodology of Experiment~2, and evaluate the raw inference
+rates of $\sf Distribution^S$-$\sf o$ and $\sf Distribution$-$\sf o$. 
+Table~\ref{tab:file}(a) shows the results. Both attack instances have high raw
+inference rates against {\em Disk} (e.g., 15.8\% for 
+$\sf Distribution$-$\sf o$ and 16.7\% for $\sf Distribution^S$-$\sf o$),
+because each disk file includes a large number of rarely updated chunks that
+form high locality within the same file. Interestingly, we observe that 
+{\em Source}, although each file is of a small size, also incurs high raw
+inference rates by the distribution-based attacks (e.g., 17.1\% for 
+$\sf Distribution$-$\sf o$ and 15.0\% for $\sf Distribution^S$-$\sf o$). The
+reason is that programming source files are often stored together in file system
+(e.g., the source files that belong to the same project locate in an identical
+directory) and form a large stretch of correlated chunks, which present high
+locality across files. For small and scattered files (e.g., {\em Office}, 
+{\em Picture}, and {\em Database}), the distribution-based attacks have
+relative low raw inference rates.     
+
+
+{\bf Observation (8) --} {\em The severity of the distribution-based attack depends on the update frequencies, sizes, and spatiality of target files. } 
+
+We examine the security implication of the clustering-based attack using the
+VM dataset. Specifically, we use the 11th  backup of each VM user  to infer original content in corresponding 13th VM
+backup. Since the VM dataset does not contain any metadata, we count the raw
+inference rate based on the  whole data content in each VM snapshot.
+Note that we filter all zero chunks in the count of raw inference rate,
+because they occupy a large fraction in VM disk images \cite{jin09}.           
+
+
+% switch to the clustering-based attack, and infer the content of the last (i.e., the 13th) VM backup based on the corresponding 11th backup. Since the VM dataset does not contain metadata, we evaluate the raw inference rate across different users. Specifically, like Experiment 7, we only consider segment-level attack for high precision, and count the raw inference rate based on the correctly inferred segments. Note that since VM images commonly contain a large fraction of zero chunks ,  we filter out the zero segments in our inferred raw content.    
+
+We use the same configuration of Experiment~5, and evaluate raw inference rate
+based on segment-level inference.  Table~\ref{tab:user}(b) shows the results
+for different users.  We observe that the clustering-based attack achieves high
+severity against the VM dataset. For example, it infers up to 30.8\% raw
+content of User6's VM backup. On average, the raw inference rate of all users
+is as high as 23.2\%.  
+% a relatively high raw inference rate.  On average, the raw inference rate is 23.2\% for all users. 
+
+{\bf Observation (9) --} {\em The clustering-based attack threatens the
+confidentiality of VM disk images. } 
+
