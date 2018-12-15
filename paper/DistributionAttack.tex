@@ -1,153 +1,47 @@
 \chapter{基于分布的频率分析攻击方法}
 \label{sec:DistributionAttack}
 
-The distribution-based attack exploits the order information of $\mathbf{C}$
-and $\mathbf{A}$ to strengthen the effectiveness of frequency analysis.  It
-then compares the relative frequency distributions of $\mathbf{C}$ and
-$\mathbf{A}$ to reduce the false positive results.  We also show how to
-exploit chunk size information to further improve the inference precision.  
+基于分布的攻击利用$\mathbf{C}$和$\mathbf{A}$的数据块的逻辑顺序信息来增强频率分析的有效性。它通过比较$\mathbf{C}$和$\mathbf{A}$的相对频率分布，以减少误报结果。本文还展示了如何利用数据块的大小信息来进一步提高推理精度。
 
-\section{Background: Locality-based Attack}
-\label{sec:prior-attack}
+\section{背景知识：基于数据块局部性的频率分析的攻击}
 
-The distribution-based attack builds on the previously proposed {\em
-locality-based attack} \cite{li17}, which shows how frequency analysis causes
-information leakage in backup workloads.  The locality-based attack considers
-{\em full backups} (or backups for short) that are created as the complete
-copies of primary data (e.g., application states, file system snapshots, and
-VM disk images) on a daily or weekly basis. It aims to infer the
-ciphertext-plaintext pairs across different versions of backups.  It assumes
-that the auxiliary information $\mathbf{A}$ is derived from some older
-backups, and its goal is to infer the plaintexts of the latest backup (i.e.,
-$\mathbf{M}$). 
+\label{sec:DistributionAttack-prior-attack}
 
-The locality-based attack leverages the {\em locality} property
-\cite{xia11,zhu08,lillibridge09}, which is a common phenomenon in practical
-backup workloads. Specifically, the locality property states that neighboring
-chunks tend to co-occur in the {\em same order} across different versions of
-backups before deduplication. The main reason is that the updates to each
-backup are often clustered in some small regions of chunks, while the
-remaining large stretch of chunks appear unchanged or preserve the same order
-across different versions of backups.  
+基于分布的频率分析攻击建立在已有的基于数据块局部性的频率分析攻击\cite{li2017information}的基础上，它展示了频率分析如何导致备份工作负载中的信息发生泄漏。基于数据块局部性的频率分析攻击针对每日或每周为主要数据的完整副本（例如，应用程序状态，文件系统快照和VM磁盘映像）创建的完全备份（简称为备份）。它旨在推断不同版本备份间的密文数据块-明文数据块对。它通过假定辅助信息$\mathbf{A}$来自一些较旧的备份，来推断最新备份的明文数据块（即$\mathbf{M}$）。
 
-Based on locality, the locality-based attack exploits the order information to
-discover the neighboring information of ciphertexts and plaintexts.
-Specifically, for a given unique ciphertext $C$, the attack first identifies
-the set of all identical copies $\{\hat{C}^{(i)}\}$.  For each
-$\hat{C}^{(i)}$, it considers the left and right {\em neighbors} of
-$\hat{C}^{(i)}$, i.e., $\hat{C}^{(i-1)}$ and $\hat{C}^{(i+1)}$, respectively.
-It extracts the sets of left and right neighbors into the associative arrays
-$\mathbf{L_C}$ and $\mathbf{R_C}$, respectively.  The associative arrays store
-the mappings of each unique ciphertext $C$ and its {\em co-occurrence
-frequencies} with its left and right neighbors, respectively.   Similarly, the attack also constructs the
-associative arrays $\mathbf{L_A}$ and $\mathbf{R_A}$ based on the order
-information of $\mathbf{A}$. 
+基于数据块局部性的频率分析攻击利用了数据块局部性这一属性\cite{xia2011silo,zhu2008avoiding,lillibridge2009sparse}，这是实际备份工作负载中的常见现象。 具体而言，局部性是指在重复数据删除之前，相邻的数据块在不同版本的备份中往往以相同的逻辑顺序存在。 主要原因是每个备份的更新通常聚集在一些小范围内的数据块中，而剩余的大范围内的数据块在不同版本的备份中保持不变（保持相同的顺序）。
 
-The locality-based attack then iterates frequency analysis through the
-neighbors of each inferred ciphertext-plaintext pair.  It first applies
-frequency analysis to infer a number (parameterized by $u$) of top-frequent
-ciphertext-plaintext pairs \{$(C, M)$\} from $\mathbf{C}$ and $\mathbf{A}$.
-The inferred results are likely to be {\em real} (i.e., the target ciphertext
-is indeed mapped from the inferred plaintext), based on the observation that
-the ranks of highly frequent chunks are stable across different versions of
-backups.  For each inferred pair $(C, M)$, the attack finds their left and
-right neighbors that have the most co-occurrence frequencies with $C$ and $M$,
-respectively.  Due to locality, the left and right neighbors of $M$ are likely
-to be the original plaintexts of the corresponding left and right neighbors of
-$C$, respectively.  Thus, the attack also includes the top-frequent left
-(resp. right) neighbors of $C$ and $M$ into the set of the resulting inferred
-ciphertext-plaintext pairs.  Finally, the attack procedure iterates until the
-neighbors of each inferred ciphertext-plaintext pair are examined. 
+根据局部性原理，基于数据块局部性的频率分析攻击利用逻辑顺序信息来发现密文数据块和明文数据块的邻近信息。具体来说，对于给定的唯一密文数据块$C$，对手首先标识所有相同副本的集合$\{\hat{C}^{(i)}\}$。对于每个$\hat{C}^{(i)}$，它会考虑$\hat{C}^{(i)}$的左右邻居，即$\hat{C}^{(i-1)}$和$\hat{C}^{(i+1)}$。它将左右邻居的集合分别提取到关联数组$\mathbf{L_C}$和$\mathbf{R_C}$中。关联数组分别存储每个唯一密文$C$的映射及其与左右邻居的共现频率。同时，对手还会根据$\mathbf{A}$的逻辑顺序信息构造关联数组$\mathbf{L_A}$和$\mathbf{R_A}$。
 
-%It applies frequency analysis to infer new ciphertext-plaintext pairs that
-%have the same co-occurrence frequency rank among corresponding neighbors. The
-%rationale is the order of chunks is preserved by chunk locality, and the left
-%and right neighbors of $M$ are likely to be the original plaintexts of the
-%corresponding neighbors of $C$. Thus, the attack further iterates the same
-%frequency analysis through the neighbors of these newly inferred
-%ciphertext-plaintext pairs, so as to increase attack severity.    
+然后，基于数据块局部性的频率分析攻击通过每个推断的密文数据块-明文数据块对的邻居进行迭代频率分析。它首先在$\mathbf{C}$和$\mathbf{A}$中通过频率分析推断得到出现频率最高的$u$组密文数据块-明文数据块对\{$(C,M)$\}（$u$是该攻击开始时选取数据块对数量的参数，一般设为5）。因为基于观察得到高频率数据块的频率等级（相对排名）在不同版本的备份中是稳定的，所以推断结果可能是真实的（即，目标密文数据块与推断的明文数据块是正确的唯一映射）。对于每个推断的明密文数据块对$(C,M)$，攻击发现它们的左右邻居$C$和$M$的共现频率最高，由于局部性的原因，$M$的左右邻居可能分别是$C$的相应左右邻居的原始明文数据块。因此，将$C$和$M$的最高频率左（右）邻居到添加到推断的密文数据块-明文数据块对的集合中。最后，不断迭代此过程，直到检查完每个推断得到的的密文数据块-明文数据块对的邻居。
 
-%if $u$ is small. The rationale is the ranks of highly frequent chunks are
-%stable across backups. On the other hand, a smaller $u$ degrades the coverage
-%of inferred ciphertext-plaintext pairs, and we examine the impact of $u$ in
-%Section~\ref{sec:experiment-distribution}. 
+因为数据块的顺序由数据块局部性保留，所以它可以使用频率分析来推断在相应的邻居中具有相同的共现频率等级的新的密文数据块-明文数据块对。$M$的左右邻居可能是$C$的相应邻居的原始明文。因此，攻击通过这些新推断的密文数据块-明文数据块对的邻居进一步迭代相同的频率分析，从而增加攻击的严重性。
 
-However, the locality-based attack has a major weakness that it  introduces
-a high number of false positives (i.e., incorrect ciphertext-plaintext pairs).
-Since the main idea of frequency analysis is to map ciphertexts to plaintexts
-with the same frequency ranks, any disturbance to frequency ranking (e.g., 
-the updates across backups) can lead to incorrect ciphertext-plaintext pairs,
-which can in turn comprise the inference of their neighbors.  Although the
-locality-based attack is shown to effectively infer a significant fraction of
-real ciphertext-plaintext pairs,  the adversary has low confidence to tell
-whether each inferred ciphertext-plaintext pair is real or a false positive.  
+然而，基于数据块局部性的频率分析攻击存在一个主要问题，即它引入了大量误报（即，不正确的密文数据块-明文数据块对）。 由于频率分析的主要思想是将密文映射到具有相同频率等级的明文，因此对频率等级的任何干扰（例如，跨备份的更新）都可能导致推断出不正确的密文数据块-明文数据块对，这又将导致对其邻居的推断发生错误。虽然基于数据块局部性的频率分析攻击被证明可以有效地推断出真正的密文数据块-明文数据块对的很大一部分，但是对手对于判断每个推断的密文数据块-明文数据块对的真实性置信度较低。 
 
 % For example, our evaluation shows although the locality-based attack can correctly infer 15.2\% of ciphertext-plaintext pairs in some case, the false positives take around 65.2\% in its inference results. In other words, the adversary has low confidence in identifying whether the inferred ciphertext-plaintext pairs are correct or not.  
 
 
-% Our observation is frequency analysis essentially dominates the severity of the locality-based attack, yet it is {\em sensitive to frequency ranking}. Specifically, any disturbance (e.g., due to data updates or sorting the tied chunks that have the same frequency) to the frequency rank can greatly degrade the inference accuracy. These incorrectly inferred ciphertext-plaintext chunk pairs will compromise the iterations of their neighboring chunks (see above), and hence lead to low inference rate. 
-% Although the authors \cite{li17} use a parameter (e.g., $u$, see above) to limit only a small number of top-frequent chunk pairs to be returned by frequency analysis, we find that the trick is not enough for {\em severe} inference attacks that demand high inference rate and accuracy.  In our experiments, we show the trick is not enough for severity and accuracy. A lower bound, although achieves high accuracy, potentially decreases the number of inferred ciphertext-plaintext chunk pairs. 
+% Our observation is frequency analysis essentially dominates the severity of the locality-based attack, yet it is {\em sensitive to frequency ranking}. Specifically, any disturbance (e.g., due to data updates or sorting the tied chunks that have the same frequency) to the frequency rank can greatly degrade the inference accuracy. These incorrectly inferred ciphertext-plaintext chunk pairs will compromise the iterations of their neighboring chunks (see above), and hence lead to low inference rate. Although the authors \cite{li17} use a parameter (e.g., $u$, see above) to limit only a small number of top-frequent chunk pairs to be returned by frequency analysis, we find that the trick is not enough for {\em severe} inference attacks that demand high inference rate and accuracy.  In our experiments, we show the trick is not enough for severity and accuracy. A lower bound, although achieves high accuracy, potentially decreases the number of inferred ciphertext-plaintext chunk pairs. 
 
- % The adversary adds the newly inferred top-frequent chunk pairs into $\mathcal{G}$, and iterates until $\mathcal{G}$ is empty.
-% We apply frequency analysis to find the most frequent ciphertext-plaintext chunk pairs from each of LC and LM, and similarly from RC and RM. In other words, we find the left and right neighboring chunks of C and M that have the most co-occurrences with C and M themselves, respectively.
-% infer new ciphertext-plaintext pairs from the neighbors of $C$ and $M$. Specifically, it sorts the left and right neighbors of $C$ and $M$ based on their co-occurrence frequencies with $C$ and $M$, respectively, and infer    
-% collects their left and right neighbors, and applies frequency analysis 
-% applies    
-% on frequency analysis as underlying primitive, and repeats it based on . Specifically,  The key idea behind the locality-based attack is to 
-% the original plaintext of ciphertext   
-% which  
-% . Specifically, chunk locality states   
-% to repeat frequency analysis.  To exploit chunk locality, the adversary first applies   
-% To launch locality-based attack, the adversary first  
 
-% and iterates it based on {\em chunk locality} , which specifies neighboring chunks tend to co-occur in the same order. Specifically, the adversary first applies frequency analysis to initialize an inferred set $\mathcal{G}$ with a configurable number (parameterized by $u$) of top-frequent ciphertext-plaintext chunk pairs. These inferred pairs can be considered correct with a high probability when $u$ is not much large (see \S\ref{sec:bucket_description}). In each iteration, the adversary picks one pair $(C, M)$ out of $\mathcal{G}$, and identifies the corresponding neighboring chunks $\mathbf{L}_\mathcal{C}[C]$, $\mathbf{R}_\mathcal{C}[C]$, $\mathbf{L}_\mathcal{M}[M]$ and $\mathbf{R}_\mathcal{M}[M]$ of $C$ and $M$. It applies frequency analysis on
-% $\mathbf{L}_\mathcal{C}[C]$ and $\mathcal{L}_\mathcal{M}[M]$, as well as $\mathbf{R}_\mathcal{C}[C]$ and $\mathbf{R}_\mathcal{M}[M]$, according to their co-occurrence frequencies with $C$ and $M$. The rationale is the order of chunks is preserved due to locality, and the left and right neighbors of $M$ are likely to be the original chunks of the left and right neighbors of $C$. The adversary adds the newly inferred top-frequent chunk pairs into $\mathcal{G}$, and iterates until $\mathcal{G}$ is empty. 
-
-% Recall that a ciphertext may repeat in $\mathbf{C}$, and it can be associated with more than one co-occurrences in $\mathbf{L_C}$ and $\mathbf{R_C}$, each of which stores the number of times it appears with its left and right neighbors.  
-% co-occur with  left and right neighbors. 
-% store the co-occurrences of left and right neighboring ciphertext in $\mathbf{C}$, respectively.   
-% Specifically, for the $i$-th plaintext $M^{(i)}$ of $\mathbf{M}$, it considers the {\em left} and {\em right neighbor} of $M^{(i)}$ as  $M^{( i-1 )}$ and $M^{( i+1 )}$, which appear directly before and after $M^{( i )}$ in $\mathbf{M}$, respectively. It collects the ordering of $\mathbf{A}$ in the form of the associative arrays $\mathbf{L_A}$ and $\mathbf{R_A}$, which store the co-occurrences of neighboring plaintexts in $\mathbf{A}$. 
-
-% The attack assumes the adversary's knowledge of order information is distributional, in the form of the associative arrays $\mathbf{L}_\mathcal{C}$ and $\mathbf{R}_\mathcal{C}$, which map each ciphertext chunk $C$ to its left and right neighboring chunks and corresponding co-occurrence frequencies with $C$. Note that this can be computed exactly if the adversary knows $\mathcal{L}_o$. The adversary can also extract similar arrays $\mathbf{L}_\mathcal{M}$ and $\mathbf{R}_\mathcal{M}$ from $\mathbf{M}_a$.
-% propose the  that builds on  in backup workloads.
-% In this section, we present the {\em distribution-based attack}, which is applicable for {\em both} fixed-size and variable-size chunks in backup data. Specifically, the distribution-based attack targets {\em full backups} (or backups for short) that are created as the complete copies of primary data (e.g., application states, file systems, and VM images) on a daily or a weekly basis, and it aims to infer the ciphertext-plaintext pairs across different versions (e.g., $\mathbf{M}$ and $\mathbf{C}$) of backups. The distribution-based attack exploits the order information, meaning that the logical orders of plaintexts in orginal file are reflected by the sequences of corresponding ciphertexts in $\mathbf{C}$ (see Section~\ref{sec:leakage}). 
-% The distribution-based attack builds on {\em chunk locality} \cite{xia11,lillibridge09,zhu08, li17}, which defines the co-occurrence of neighboring chunks in backups. We follow the notations of \cite{li17} to capture chunk locality.  Based on the neighborhood relationship, we construct the associative arrays $\mathbf{L_M}$ and $\mathbf{R_M}$ to store the co-occurrences of neighboring plaintexts. Specifically, for the plaintexts of $M$ and $M'$,  $\mathbf{L_M}[M][M']$ and $\mathbf{R_M}[M][M']$ store the number of times that $M'$ is the left and right neighbor of $M$ in $\mathbf{M}$, respectively. We also build the associative arrays $\mathbf{L_C}$ and $\mathbf{R_C}$ to store the co-occurrences of
-% neighboring ciphertexts in $\mathbf{C}$.   
 
 
 \section{Description of Distribution-based Attack}
 \label{sec:distribution-attack-description}
 
-The distribution-based attack extends the locality-based attack \cite{li17} to
-significantly remove false positives.  It leverages the locality property in
-backup workloads as in the locality-based attack.  In addition, for each
-unique ciphertext $C$ in $\mathbf{C}$, we measure its {\em relative frequency
-distribution} based on its co-occurrence frequencies with its neighbors.
-Similarly, we examine the relative frequency distribution of each unique
-plaintext $M$ in $\mathbf{A}$.  Our observation is that for a real
-ciphertext-plaintext pair $(C, M)$, both $C$ and $M$ should have similar
-relative frequency distributions; i.e., their co-occurrence frequencies with
-their respective neighbors are similar.  We treat this observation as a more
-general notion of the locality property, and use it as a condition to filter
-possibly incorrect ciphertext-plaintext pairs. 
+The distribution-based attack extends the locality-based attack \cite{li17} to significantly remove false positives.  It leverages the locality property in backup workloads as in the locality-based attack.  In addition, for each unique ciphertext $C$ in $\mathbf{C}$, we measure its {\em relative frequency distribution} based on its co-occurrence frequencies with its neighbors. Similarly, we examine the relative frequency distribution of each unique plaintext $M$ in $\mathbf{A}$.  Our observation is that for a real ciphertext-plaintext pair $(C, M)$, both $C$ and $M$ should have similar relative frequency distributions; i.e., their co-occurrence frequencies with their respective neighbors are similar.  We treat this observation as a more general notion of the locality property, and use it as a condition to filter possibly incorrect ciphertext-plaintext pairs. 
 
-%Our insight is if $M$ is the original plaintext of $C$, then the relative
-%frequency distributions of $M$ and $C$ are likely to be {\em similar}. The
-%rationale is  $\mathbf{A}$ and $\mathbf{C}$ are mapped from the same source,
-%and hence share a large stretch of unchanged chunks that preserve
-%relative frequency distributions. In other words, we extend frequency
-%analysis, and filter the possibly flawed ciphertext-plaintext pairs $(C,
-%M)$, in which the relative frequency distributions of $C$ and $M$
-%are significantly different. This is expected to improve the precision of
-%inference results. 
-% infer the ciphertext-plaintext pair $(C, M)$ only when $C$ and $M$ have similar relative frequency distributions. Thus, we can filter the flawed inference pairs, in which the relative frequency distributions of the ciphertext and corresponding plaintext are likely to be significantly different.  
+%Our insight is if $M$ is the original plaintext of $C$, then the relative frequency distributions of $M$ and $C$ are likely to be {\em similar}. The rationale is  $\mathbf{A}$ and $\mathbf{C}$ are mapped from the same source, and hence share a large stretch of unchanged chunks that preserve relative frequency distributions. In other words, we extend frequency analysis, and filter the possibly flawed ciphertext-plaintext pairs $(C, M)$, in which the relative frequency distributions of $C$ and $M$ are significantly different. This is expected to improve the precision of inference results. infer the ciphertext-plaintext pair $(C, M)$ only when $C$ and $M$ have similar relative frequency distributions. Thus, we can filter the flawed inference pairs, in which the relative frequency distributions of the ciphertext and corresponding plaintext are likely to be significantly different.  
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=.48\textwidth]{pic/distribution-attack.pdf}
-\caption{Workflow of  distribution-based attack.}
-\label{fig:distribution-attack}
+\begin{figure}[!htb]
+    \small
+    \centering
+    \includegraphics[width=14cm]{distribution-attack.pdf}
+    \caption{Workflow of  distribution-based attack} 
+    \label{fig:Workflow of  distribution-based attack}
 \end{figure}
+
 
 Figure \ref{fig:distribution-attack} presents the workflow of the
 distribution-based attack. We first sort the unique ciphertexts and  plaintexts by
@@ -623,92 +517,92 @@ The requirement R3 is effective to filter the incorrect ciphertext-plaintext pai
 % % Note that \textsc{Robust-ranking} also returns $u$ highly frequent chunk pairs like locality-based attack \cite{li17}. Similarly, it sorts  For each top-frequent ciphertext chunk $C$ with a rank of $i$ ($1 \leq i \leq u$), it examines the cor:responding plaintext chunks that rank range from $i-r$ to $i+r$. Since $i-r$ is possibly below the first rank index, the algorithm derives the minimum rank $start$ of $1$ and $i-r$ and          
 
 
-% \begin{algorithm}[t]
-% \caption{Distribution-based Attack}
-% \label{alg:distribution-attack}
-% \small
-%   \SetKwFunction{Main}{\sc Distribution-Attack}
-%   \SetKwProg{Pro}{procedure}{:}{}
-% 	\Pro{\Main{$u, r, t, \mathcal{L}_{\rm order}, \mathbf{M}_{\rm aux}$}}{
-% 		initialize $\mathcal{R} \longleftarrow \emptyset$\; 
+\begin{algorithm}[t]
+\caption{Distribution-based Attack}
+\label{alg:distribution-attack}
+\small
+   \SetKwFunction{Main}{\sc Distribution-Attack}
+   \SetKwProg{Pro}{procedure}{:}{}
+ 	\Pro{\Main{$u, r, t, \mathcal{L}_{\rm order}, \mathbf{M}_{\rm aux}$}}{
+ 		initialize $\mathcal{R} \longleftarrow \emptyset$\; 
 
-% 		extract $\mathbf{F}_{\rm tar}, \mathbf{L}_{\rm tar}$ and $\mathbf{R}_{\rm tar}$ from $\mathcal{L}_{\rm order}$\;
-% 		% \tcc{$\mathbf{F}_{\rm tar}[C]$ maps $C$ to frequency of its original chunk in $\mathbf{M}_{\rm tar}$}
-% 		% \tcc{$\mathbf{L}_{\rm tar}[C]$ maps ciphertext chunk $C$ to its left neighbors as well as corresponding co-occurrences with $C$}
-% 		% \tcc{$\mathbf{R}_{\rm tar}[C]$ maps ciphertext chunk $C$ to its right neighbors as well as corresponding co-occurrences with $C$}
+ 		extract $\mathbf{F}_{\rm tar}, \mathbf{L}_{\rm tar}$ and $\mathbf{R}_{\rm tar}$ from $\mathcal{L}_{\rm order}$\;
+ 		 \tcc{$\mathbf{F}_{\rm tar}[C]$ maps $C$ to frequency of its original chunk in $\mathbf{M}_{\rm tar}$}
+ 		 \tcc{$\mathbf{L}_{\rm tar}[C]$ maps ciphertext chunk $C$ to its left neighbors as well as corresponding co-occurrences with $C$}
+ 		 \tcc{$\mathbf{R}_{\rm tar}[C]$ maps ciphertext chunk $C$ to its right neighbors as well as corresponding co-occurrences with $C$}
 
-% 		extract $\mathbf{F}_{\rm aux}, \mathbf{L}_{\rm aux}$ and $\mathbf{R}_{\rm aux}$ from $\mathbf{M}_{\rm aux}$\;
-% 		% \tcc{$\mathbf{F}_{\rm aux}[M]$ stores frequency of plaintext chunk $M$ in $\mathbf{M}_{\rm aux}$}
-% 		% \tcc{$\mathbf{L}_{\rm aux}[M]$ maps plaintext chunk $M$ to its left neighbors and corresponding co-occurrences with $M$}
-% 		% \tcc{$\mathbf{R}_{\rm aux}[M]$ maps plaintext chunk $M$ to its right neighbors and corresponding co-occurrences with $M$}
+ 		extract $\mathbf{F}_{\rm aux}, \mathbf{L}_{\rm aux}$ and $\mathbf{R}_{\rm aux}$ from $\mathbf{M}_{\rm aux}$\;
+ 		 \tcc{$\mathbf{F}_{\rm aux}[M]$ stores frequency of plaintext chunk $M$ in $\mathbf{M}_{\rm aux}$}
+ 		 \tcc{$\mathbf{L}_{\rm aux}[M]$ maps plaintext chunk $M$ to its left neighbors and corresponding co-occurrences with $M$}
+ 		 \tcc{$\mathbf{R}_{\rm aux}[M]$ maps plaintext chunk $M$ to its right neighbors and corresponding co-occurrences with $M$}
 
-% 		$\mathbf{E}_{\rm tar} \longleftarrow \textsc{Entropy}(\mathbf{L}_{\rm tar}, \mathbf{R}_{\rm tar})$\;
-% 		$\mathbf{E}_{\rm aux} \longleftarrow \textsc{Entropy}(\mathbf{L}_{\rm aux}, \mathbf{R}_{\rm aux})$\;
+ 		$\mathbf{E}_{\rm tar} \longleftarrow \textsc{Entropy}(\mathbf{L}_{\rm tar}, \mathbf{R}_{\rm tar})$\;
+ 		$\mathbf{E}_{\rm aux} \longleftarrow \textsc{Entropy}(\mathbf{L}_{\rm aux}, \mathbf{R}_{\rm aux})$\;
 
-% 		$\mathcal{G} \longleftarrow \textsc{Rank}(u, r, t, \mathbf{F}_{\rm tar}, \mathbf{E}_{\rm tar}, \mathbf{F}_{\rm aux}, \mathbf{E}_{\rm aux}, {\rm INIT})$\;
+ 		$\mathcal{G} \longleftarrow \textsc{Rank}(u, r, t, \mathbf{F}_{\rm tar}, \mathbf{E}_{\rm tar}, \mathbf{F}_{\rm aux}, \mathbf{E}_{\rm aux}, {\rm INIT})$\;
 
-% 		$\mathcal{R} \longleftarrow \mathcal{G}$\;
-% 		\While{$\mathcal{G}$ is non-empty}{
-% 			pick $(C, M)$ out of $\mathcal{G}$\;
-% 			$\mathcal{R}_l \longleftarrow \textsc{Rank}(u, r, t, \mathbf{L}_{\rm tar}[C], \mathbf{E}_{\rm tar}, \mathbf{L}_{\rm aux}[M], \mathbf{E}_{\rm aux}, {\rm ITERA})$\;
-% 			$\mathcal{R}_r \longleftarrow \textsc{Rank}(u, r, t, \mathbf{R}_{\rm tar}[C], \mathbf{E}_{\rm tar}, \mathbf{R}_{\rm aux}[M], \mathbf{E}_{\rm aux}, {\rm ITERA})$\;
-% 			\For{each $(C, M)$ in $\mathcal{R}_l \cup \mathcal{R}_r$}{
-% 				\If{$(C, *)$ is not in $\mathcal{R}$}{
-% 					Add $(C, M)$ into $\mathcal{G}$ and $\mathcal{R}$\;
-% 				}
-% 			}
-% 		}
-% 		\KwRet{$\mathcal{R}$}\;
-%   }
+		$\mathcal{R} \longleftarrow \mathcal{G}$\;
+ 		\While{$\mathcal{G}$ is non-empty}{
+ 			pick $(C, M)$ out of $\mathcal{G}$\;
+ 			$\mathcal{R}_l \longleftarrow \textsc{Rank}(u, r, t, \mathbf{L}_{\rm tar}[C], \mathbf{E}_{\rm tar}, \mathbf{L}_{\rm aux}[M], \mathbf{E}_{\rm aux}, {\rm ITERA})$\;
+ 			$\mathcal{R}_r \longleftarrow \textsc{Rank}(u, r, t, \mathbf{R}_{\rm tar}[C], \mathbf{E}_{\rm tar}, \mathbf{R}_{\rm aux}[M], \mathbf{E}_{\rm aux}, {\rm ITERA})$\;
+ 			\For{each $(C, M)$ in $\mathcal{R}_l \cup \mathcal{R}_r$}{
+ 				\If{$(C, *)$ is not in $\mathcal{R}$}{
+ 					Add $(C, M)$ into $\mathcal{G}$ and $\mathcal{R}$\;
+ 				}
+ 			}
+ 		}
+ 		\KwRet{$\mathcal{R}$}\;
+   }
 
-%   \SetKwFunction{Entropy}{\sc Entropy}
-%   \SetKwProg{Fn}{function}{:}{}
-% 	\Fn{\Entropy{$\mathbf{L}_{\rm X}, \mathbf{R}_{\rm X}$}}{
-% 		\For{each chunk $X$ in $\mathbf{L}_{\rm X}$ and $\mathbf{R}_{\rm X}$}{
-% 			initialize $\mathbf{E}_{\rm X}[X].l,  \mathbf{E}_{\rm X}[X].r \longleftarrow 0$\;
-% 			$\Sigma_l \longleftarrow$ sum of co-occurrences of left neighbors in $\mathbf{L}_{\rm X}[X]$\;
-% 			\For{each left neighbor $X_l$ in $\mathbf{L}_{\rm X}[X]$}{
-% 				$\mathbf{E}_{\rm X}[X].l \longleftarrow \mathbf{E}_{\rm X}[X].l - {\sf log}_2\frac{\mathbf{L}_{\rm X}[X][X_l]}{\Sigma_l}$\;
-% 			}
-% 			$\Sigma_r \longleftarrow$ sum of co-occurrences of right neighbors in $\mathbf{R}_{\rm X}[X]$\;
-% 			\For{each right neighbor $X_r$ in $\mathbf{R}_{\rm X}[X]$}{
-% 				$\mathbf{E}_{\rm X}[X].r \longleftarrow \mathbf{E}_{\rm X}[X].r - {\sf log}_2\frac{\mathbf{R}_{\rm X}[X][X_r]}{\Sigma_r}$\;
-% 			}
-% 		}
-% 		\KwRet{$\mathbf{E}_{\rm X}$}\;
-% 	}
+   \SetKwFunction{Entropy}{\sc Entropy}
+   \SetKwProg{Fn}{function}{:}{}
+ 	\Fn{\Entropy{$\mathbf{L}_{\rm X}, \mathbf{R}_{\rm X}$}}{
+ 		\For{each chunk $X$ in $\mathbf{L}_{\rm X}$ and $\mathbf{R}_{\rm X}$}{
+ 			initialize $\mathbf{E}_{\rm X}[X].l,  \mathbf{E}_{\rm X}[X].r \longleftarrow 0$\;
+ 			$\Sigma_l \longleftarrow$ sum of co-occurrences of left neighbors in $\mathbf{L}_{\rm X}[X]$\;
+ 			\For{each left neighbor $X_l$ in $\mathbf{L}_{\rm X}[X]$}{
+ 				$\mathbf{E}_{\rm X}[X].l \longleftarrow \mathbf{E}_{\rm X}[X].l - {\sf log}_2\frac{\mathbf{L}_{\rm X}[X][X_l]}{\Sigma_l}$\;
+ 			}
+ 			$\Sigma_r \longleftarrow$ sum of co-occurrences of right neighbors in $\mathbf{R}_{\rm X}[X]$\;
+ 			\For{each right neighbor $X_r$ in $\mathbf{R}_{\rm X}[X]$}{
+ 				$\mathbf{E}_{\rm X}[X].r \longleftarrow \mathbf{E}_{\rm X}[X].r - {\sf log}_2\frac{\mathbf{R}_{\rm X}[X][X_r]}{\Sigma_r}$\;
+ 			}
+ 		}
+ 		\KwRet{$\mathbf{E}_{\rm X}$}\;
+ 	}
 
-% 	\SetKwFunction{Ranking}{\sc Rank}
-%   \SetKwProg{Fn}{function}{:}{}
-% 	\Fn{\Ranking{$u, r, t, \mathbf{X}_{\rm tar}, \mathbf{E}_{\rm tar}, \mathbf{X}_{\rm aux}, \mathbf{E}_{\rm aux}, f$}}{
-% 		initialize $\mathcal{R}_x \longleftarrow \emptyset$\;
-% 		sort ciphertext chunks in $\mathbf{X}_{\rm tar}$ by frequencies\;
-% 		sort plaintext chunks in $\mathbf{X}_{\rm aux}$ by frequencies\;
-% 		\For{$i \longleftarrow 1$ to $u$}{
-% 			$C_i \longleftarrow$ $i$-th frequent ciphertext chunk\;
-% 			initialize $d \longleftarrow$ MAX\_DISTANCE\;
-% 			\uIf{$f$ is {\rm INIT}}{
-% 				$m \longleftarrow$ maximum rank of $1$ and $i-r$\;
-% 			}
-% 			\uElseIf{$f$ is {\rm ITERA}}{
-% 				$m \longleftarrow$ $i$\;
-% 			}
-% 			\For{$j \longleftarrow m$ to $i+r$}{ 
-% 				$M_j \longleftarrow$ $j$-th frequent plaintext chunk\;
-% 				\If{${\sf D}(C_i, M_j) < d$}{
-% 					$M \longleftarrow M_j$\;
-% 					$d \longleftarrow {\sf D}(C_i, M_j)$\;
-% 				}
-% 			}
-% 			\If{${\sf D}(C_i, M) < t$}{
-% 				add $(C_i, M)$ into $\mathcal{R}_x$\;
-% 			}
-% 		}
-% 		\KwRet{$\mathcal{R}_x$}\;
-% 	}
+ 	\SetKwFunction{Ranking}{\sc Rank}
+   \SetKwProg{Fn}{function}{:}{}
+ 	\Fn{\Ranking{$u, r, t, \mathbf{X}_{\rm tar}, \mathbf{E}_{\rm tar}, \mathbf{X}_{\rm aux}, \mathbf{E}_{\rm aux}, f$}}{
+ 		initialize $\mathcal{R}_x \longleftarrow \emptyset$\;
+ 		sort ciphertext chunks in $\mathbf{X}_{\rm tar}$ by frequencies\;
+ 		sort plaintext chunks in $\mathbf{X}_{\rm aux}$ by frequencies\;
+		\For{$i \longleftarrow 1$ to $u$}{
+ 			$C_i \longleftarrow$ $i$-th frequent ciphertext chunk\;
+ 			initialize $d \longleftarrow$ MAX\_DISTANCE\;
+ 			\uIf{$f$ is {\rm INIT}}{
+ 				$m \longleftarrow$ maximum rank of $1$ and $i-r$\;
+ 			}
+ 			\uElseIf{$f$ is {\rm ITERA}}{
+ 				$m \longleftarrow$ $i$\;
+ 			}
+ 			\For{$j \longleftarrow m$ to $i+r$}{ 
+ 				$M_j \longleftarrow$ $j$-th frequent plaintext chunk\;
+ 				\If{${\sf D}(C_i, M_j) < d$}{
+ 					$M \longleftarrow M_j$\;
+ 					$d \longleftarrow {\sf D}(C_i, M_j)$\;
+ 				}
+ 			}
+ 			\If{${\sf D}(C_i, M) < t$}{
+ 				add $(C_i, M)$ into $\mathcal{R}_x$\;
+ 			}
+ 		}
+ 		\KwRet{$\mathcal{R}_x$}\;
+	}
 
 
-% \end{algorithm}
+\end{algorithm}
 
 
 
