@@ -718,12 +718,7 @@ relative low raw inference rates.
 
 {\bf Observation (8) --} {\em The severity of the distribution-based attack depends on the update frequencies, sizes, and spatiality of target files. } 
 
-We examine the security implication of the clustering-based attack using the
-VM dataset. Specifically, we use the 11th  backup of each VM user  to infer original content in corresponding 13th VM
-backup. Since the VM dataset does not contain any metadata, we count the raw
-inference rate based on the  whole data content in each VM snapshot.
-Note that we filter all zero chunks in the count of raw inference rate,
-because they occupy a large fraction in VM disk images \cite{jin09}.           
+We examine the security implication of the clustering-based attack using the VM dataset. Specifically, we use the 11th  backup of each VM user  to infer original content in corresponding 13th VM backup. Since the VM dataset does not contain any metadata, we count the raw inference rate based on the  whole data content in each VM snapshot. Note that we filter all zero chunks in the count of raw inference rate, because they occupy a large fraction in VM disk images \cite{jin09}.           
 
 
 % switch to the clustering-based attack, and infer the content of the last (i.e., the 13th) VM backup based on the corresponding 11th backup. Since the VM dataset does not contain metadata, we evaluate the raw inference rate across different users. Specifically, like Experiment 7, we only consider segment-level attack for high precision, and count the raw inference rate based on the correctly inferred segments. Note that since VM images commonly contain a large fraction of zero chunks ,  we filter out the zero segments in our inferred raw content.    

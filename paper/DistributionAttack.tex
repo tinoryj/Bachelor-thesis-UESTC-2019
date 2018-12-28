@@ -7,9 +7,9 @@
 
 \label{sec:DistributionAttack-prior-attack}
 
-基于分布的频率分析攻击建立在已有的基于数据块局部性的频率分析攻击\cite{li2017information}的基础上，它展示了频率分析如何导致备份工作负载中的信息发生泄漏。基于数据块局部性的频率分析攻击针对每日或每周为主要数据的完整副本（例如，应用程序状态，文件系统快照和VM磁盘映像）创建的完全备份（简称为备份）。它旨在推断不同版本备份间的密文数据块-明文数据块对。它通过假定辅助信息$\mathbf{A}$来自一些较旧的备份，来推断最新备份的明文数据块（即$\mathbf{M}$）。
+基于分布的频率分析攻击建立在已有的基于数据块局部性的频率分析攻击\citing{li2017information}的基础上，它展示了频率分析如何导致备份工作负载中的信息发生泄漏。基于数据块局部性的频率分析攻击针对每日或每周为主要数据的完整副本（例如，应用程序状态，文件系统快照和VM磁盘映像）创建的完全备份（简称为备份）。它旨在推断不同版本备份间的密文数据块-明文数据块对。它通过假定辅助信息$\mathbf{A}$来自一些较旧的备份，来推断最新备份的明文数据块（即$\mathbf{M}$）。
 
-基于数据块局部性的频率分析攻击利用了数据块局部性这一属性\cite{xia2011silo,zhu2008avoiding,lillibridge2009sparse}，这是实际备份工作负载中的常见现象。 具体而言，局部性是指在重复数据删除之前，相邻的数据块在不同版本的备份中往往以相同的逻辑顺序存在。 主要原因是每个备份的更新通常聚集在一些小范围内的数据块中，而剩余的大范围内的数据块在不同版本的备份中保持不变（保持相同的顺序）。
+基于数据块局部性的频率分析攻击利用了数据块局部性这一属性\citing{xia2011silo,zhu2008avoiding,lillibridge2009sparse}，这是实际备份工作负载中的常见现象。 具体而言，局部性是指在重复数据删除之前，相邻的数据块在不同版本的备份中往往以相同的逻辑顺序存在。 主要原因是每个备份的更新通常聚集在一些小范围内的数据块中，而剩余的大范围内的数据块在不同版本的备份中保持不变（保持相同的顺序）。
 
 根据局部性原理，基于数据块局部性的频率分析攻击利用逻辑顺序信息来发现密文数据块和明文数据块的邻近信息。具体来说，对于给定的唯一密文数据块$C$，对手首先标识所有相同副本的集合$\{\hat{C}^{(i)}\}$。对于每个$\hat{C}^{(i)}$，它会考虑$\hat{C}^{(i)}$的左右邻居，即$\hat{C}^{(i-1)}$和$\hat{C}^{(i+1)}$。它将左右邻居的集合分别提取到关联数组$\mathbf{L_C}$和$\mathbf{R_C}$中。关联数组分别存储每个唯一密文$C$的映射及其与左右邻居的共现频率。同时，对手还会根据$\mathbf{A}$的逻辑顺序信息构造关联数组$\mathbf{L_A}$和$\mathbf{R_A}$。
 
@@ -65,11 +65,11 @@
 
 图\ref{fig:基于分布的频率分析攻击工作流程}展示了基于分布的频率分析攻击方案的工作流程。
 
-首先按$\mathbf{C}$和$\mathbf{A}$中的频率对具有唯一性的密文和明文进行排序。 与基于数据块局部性的频率分析攻击\cite{li2017information}一样，通过参数$u$将基础频率分析配置为最多返回$u$个频率最高的明密文数据块对。
+首先按$\mathbf{C}$和$\mathbf{A}$中的频率对具有唯一性的密文和明文进行排序。 与基于数据块局部性的频率分析攻击\citing{li2017information}一样，通过参数$u$将基础频率分析配置为最多返回$u$个频率最高的明密文数据块对。
 
 接下来，对于每个具有唯一性的密文数据块$C_i$（其中$i, 1 \leq i \leq u$，代表了该密文数据块的频率排名），检查相近频率排名范围内明文数据块$M_{i-r}, \ldots, M_i, \ldots, M_{i+r}$（从$i-r$到$i+r$），其中$r$是可配置参数（默认为10），表示可以解决的频率排名干扰的最大范围。
 
-对于每个$C_i$（其中$1 \leq i \leq u$）和相应的$M_j$（其中$i-r\le j\le i+r$），我们通过熵来表示它们的相对频率分布，熵是信息理论中的一个关键概念，用于衡量随机来源产生的信息量。在这里，我们采用熵来量化概率分布的随机性\cite{wang08}。 具体来说，我们定义了两个随机变量，分别用$X$和$Y$来描述$C_i$与其左右邻居的共现事件，这样事件“$X = C$” 表示$C$是$C_i$的左邻居，而事件$Y = C$表示$C$是$C_i$的右邻居。 因此，我们基于$\mathbf{L_C}$和$\mathbf{R_C}$来计算两个事件发生的概率：
+对于每个$C_i$（其中$1 \leq i \leq u$）和相应的$M_j$（其中$i-r\le j\le i+r$），我们通过熵来表示它们的相对频率分布，熵是信息理论中的一个关键概念，用于衡量随机来源产生的信息量。在这里，我们采用熵来量化概率分布的随机性\citing{wang08}。 具体来说，我们定义了两个随机变量，分别用$X$和$Y$来描述$C_i$与其左右邻居的共现事件，这样事件“$X = C$” 表示$C$是$C_i$的左邻居，而事件$Y = C$表示$C$是$C_i$的右邻居。 因此，我们基于$\mathbf{L_C}$和$\mathbf{R_C}$来计算两个事件发生的概率：
 
 \begin{eqnarray}
     \Pr[X = C] = \frac{\mathbf{L_C}[C_i][C]}{\sum_{C' \in \mathbf{L_C}[C_i]} \mathbf{L_C}[C_i][C']}, \nonumber \\
@@ -100,111 +100,7 @@
 
 值得注意的是，$C_i$所对应的原始明文数据块可能不在检查的明文数据块$M_{i-r}, \ldots, M_{i+r}$的范围内。在这种情况下，部分$M_j$（$i-r \leq j \leq i+r$）可能仍然满足条件R1。这种情况下，本文希望通过R2过滤不正确的密文数据块-明文数据块对。 
 
-然后，继续采用先前基于数据块局部性的频率分析攻击\cite{li2017information}中的迭代方法（参见章节：\ref{sec:DistributionAttack-prior-attack}）来扩展推断的密文数据块-明文数据块对的覆盖范围。具体来说，对于每个推断的$(C_i, M_j)$，应用基于分布的频率分析方案（见上文）通过$C_i$和$M_j$的邻居迭代推断出更多的密文数据块-明文数据块对，在没有新的密文数据块-明文数据块对可以被推断时停止迭代，最终完成基于分布的频率分析攻击的全部过程。
-
-\subsection{本算法的细节描述}
- The distribution-based attack builds on prior locality-based attack \cite{li17} (see \S\ref{sec:locality}), and uses the robust frequency ranking approach to infer ciphertext-plaintext chunk pairs. We modify the parameters of the locality-based attack \cite{li17}. First, we remove the parameter (i.e., $w$ in \cite{li17}) of size of $\mathcal{G}$, as we find the memory can hold all fingerprints of our experimental datasets (see \S\ref{sec:methodology}). Second, we replace another parameter (i.e., $v$ in \cite{li17}) that bounds the number of chunk pairs returned by frequency analysis in each iteration, by $r$ to indicate the possible plaintext chunks to be examined.     
-
- Algorithm~\ref{alg:distribution} presents the pseudo-code of the distribution-based attack, where we assume the adversary can construct the associative arrays $\mathbf{F_C}, \mathbf{L_C}$, and $\mathbf{R_C}$, as well as $\mathbf{F_M}, \mathbf{L_M}$, and $\mathbf{R_M}$ by calling $\textsc{Count}(\mathbf{C})$ and $\textsc{Count}(\mathbf{C})$, respectively. We omit the algorithm details about $\textsc{Count}$, and readers may refer the function of the same name in ref. \cite{li17}. 
-
- The algorithm \textsc{Distribution-attack} takes $\mathbf{C}, \mathbf{M}, u$ and $r$ as input, and outputs $\mathcal{R}$ of inferred ciphertext-plaintext chunk pairs. After initializing the associative arrays of $\mathbf{F_C}, \mathbf{L_C}$ and $\mathbf{R_C}$, it calls the function \textsc{Entropy} to obtain $\mathbf{E_C}$ which maps each ciphertext chunk to its entropies derived from the relative frequency distributions of its left and right neighbors (Line~4). Similarly, it obtains $\mathbf{E_M}$ for the plaintext chunks (Line~6). Then, it calls the \textsc{Robust-ranking} function to initialize $\mathcal{G}$ and $\mathcal{R}$ (Line~7-8). 
-
- In each iteration, the algorithm picks out a pair $(C, M)$ from $\mathcal{G}$ (Line~10), and calls the function $\textsc{Robust-ranking}$ to infer ciphertext-plaintext chunk pairs $\mathcal{R}_r$ and $\mathcal{R}_l$ from the left and right neighbors of $C$ and $M$ (Line~11-12). It further adds the newly inferred pairs of $\mathcal{R}_l$ and $\mathcal{R}_r$ into $\mathcal{G}$ and $\mathcal{R}$ (Line~13-15). The iteration does not end until $\mathcal{G}$ is empty. The algorithm finally returns $\mathcal{R}$ (Line~16).    
-
-The function \textsc{Entropy} builds the entropy array $\mathbf{E}_{\rm X}$ based on $\mathbf{L}_{\rm X}$ and $\mathbf{R}_{\rm X}$, where the X can be "tar" or "aux". For each chunk $X$, it counts the total co-occurrences $\Sigma_l$ of all left neighbors of $X$ (Line~20), and further the entropy $\mathbf{E}_{\rm X}[X].l$ of the relative frequency distribution of left neighbors (Line~21-22). Similarly, it counts the entropy $\mathbf{E}_{\rm X}[X].r$ of the relative frequency distribution of right neighbors (Line~23-25).     
-
-The function \textsc{Rank} performs robust frequency ranking based on $\mathbf{X}_{\rm tar}$ and $\mathbf{X}_{\rm aux}$, where $\mathbf{X}_{\rm tar}$ and $\mathbf{X}_{\rm aux}$ can be $\mathbf{F}_{\rm tar}$ and $\mathbf{F}_{\rm aux}$, $\mathbf{L}_{\rm tar}[*]$ and $\mathbf{L}_{\rm aux}[*]$, or $\mathbf{R}_{\rm tar}[*]$ and $\mathbf{R}_{\rm aux}[*]$. It first sorts $\mathbf{X}_{\rm tar}$ and $\mathbf{X}_{\rm aux}$ by frequencies, respectively (Line~29-30). For each $i$-th frequent ciphertext chunk $C_i$, it identifies the range of plaintext chunks to be examined. Specifically, if the flag $f$ is INIT, it sets the starting rank $m$ as the maximum number of $1$ and $i-r$, since $i$ may be smaller than $r$ (Line~34-35); if $f$ is ITERA, it sets $m$ as $i$ (Line~36-37). Then, it finds the plaintext chunk $M$ in the examined range, such that ${\sf D}(C_i, M)$ is minimum (Line~38-42). The function adds $(C_i, M)$ into the result set $\mathcal{R}_x$ only when the distance ${\sf D}(C_i, M)$ is also smaller than the threshold $t$ (Line~43-44). 
-
-
-Note that \textsc{Robust-ranking} also returns $u$ highly frequent chunk pairs like locality-based attack \cite{li17}. Similarly, it sorts  For each top-frequent ciphertext chunk $C$ with a rank of $i$ ($1 \leq i \leq u$), it examines the cor:responding plaintext chunks that rank range from $i-r$ to $i+r$. Since $i-r$ is possibly below the first rank index, the algorithm derives the minimum rank $start$ of $1$ and $i-r$ and          
-
-
-\begin{algorithm}[H]
-\caption{Distribution-based Attack}
-\label{alg:distribution-attack}
-\small
-   \SetKwFunction{Main}{\sc Distribution-Attack}
-   \SetKwProg{Pro}{procedure}{:}{}
- 	\Pro{\Main{$u, r, t, \mathcal{L}_{\rm order}, \mathbf{M}_{\rm aux}$}}{
- 		initialize $\mathcal{R} \longleftarrow \emptyset$\; 
-
- 		extract $\mathbf{F}_{\rm tar}, \mathbf{L}_{\rm tar}$ and $\mathbf{R}_{\rm tar}$ from $\mathcal{L}_{\rm order}$\;
- 		 \tcc{$\mathbf{F}_{\rm tar}[C]$ maps $C$ to frequency of its original chunk in $\mathbf{M}_{\rm tar}$}
- 		 \tcc{$\mathbf{L}_{\rm tar}[C]$ maps ciphertext chunk $C$ to its left neighbors as well as corresponding co-occurrences with $C$}
- 		 \tcc{$\mathbf{R}_{\rm tar}[C]$ maps ciphertext chunk $C$ to its right neighbors as well as corresponding co-occurrences with $C$}
-
- 		extract $\mathbf{F}_{\rm aux}, \mathbf{L}_{\rm aux}$ and $\mathbf{R}_{\rm aux}$ from $\mathbf{M}_{\rm aux}$\;
- 		 \tcc{$\mathbf{F}_{\rm aux}[M]$ stores frequency of plaintext chunk $M$ in $\mathbf{M}_{\rm aux}$}
- 		 \tcc{$\mathbf{L}_{\rm aux}[M]$ maps plaintext chunk $M$ to its left neighbors and corresponding co-occurrences with $M$}
- 		 \tcc{$\mathbf{R}_{\rm aux}[M]$ maps plaintext chunk $M$ to its right neighbors and corresponding co-occurrences with $M$}
-
- 		$\mathbf{E}_{\rm tar} \longleftarrow \textsc{Entropy}(\mathbf{L}_{\rm tar}, \mathbf{R}_{\rm tar})$\;
- 		$\mathbf{E}_{\rm aux} \longleftarrow \textsc{Entropy}(\mathbf{L}_{\rm aux}, \mathbf{R}_{\rm aux})$\;
-
- 		$\mathcal{G} \longleftarrow \textsc{Rank}(u, r, t, \mathbf{F}_{\rm tar}, \mathbf{E}_{\rm tar}, \mathbf{F}_{\rm aux}, \mathbf{E}_{\rm aux}, {\rm INIT})$\;
-
-		$\mathcal{R} \longleftarrow \mathcal{G}$\;
- 		\While{$\mathcal{G}$ is non-empty}{
- 			pick $(C, M)$ out of $\mathcal{G}$\;
- 			$\mathcal{R}_l \longleftarrow \textsc{Rank}(u, r, t, \mathbf{L}_{\rm tar}[C], \mathbf{E}_{\rm tar}, \mathbf{L}_{\rm aux}[M], \mathbf{E}_{\rm aux}, {\rm ITERA})$\;
- 			$\mathcal{R}_r \longleftarrow \textsc{Rank}(u, r, t, \mathbf{R}_{\rm tar}[C], \mathbf{E}_{\rm tar}, \mathbf{R}_{\rm aux}[M], \mathbf{E}_{\rm aux}, {\rm ITERA})$\;
- 			\For{each $(C, M)$ in $\mathcal{R}_l \cup \mathcal{R}_r$}{
- 				\If{$(C, *)$ is not in $\mathcal{R}$}{
- 					Add $(C, M)$ into $\mathcal{G}$ and $\mathcal{R}$\;
- 				}
- 			}
- 		}
- 		\KwRet{$\mathcal{R}$}\;
-   }
-
-   \SetKwFunction{Entropy}{\sc Entropy}
-   \SetKwProg{Fn}{function}{:}{}
- 	\Fn{\Entropy{$\mathbf{L}_{\rm X}, \mathbf{R}_{\rm X}$}}{
- 		\For{each chunk $X$ in $\mathbf{L}_{\rm X}$ and $\mathbf{R}_{\rm X}$}{
- 			initialize $\mathbf{E}_{\rm X}[X].l,  \mathbf{E}_{\rm X}[X].r \longleftarrow 0$\;
- 			$\Sigma_l \longleftarrow$ sum of co-occurrences of left neighbors in $\mathbf{L}_{\rm X}[X]$\;
- 			\For{each left neighbor $X_l$ in $\mathbf{L}_{\rm X}[X]$}{
- 				$\mathbf{E}_{\rm X}[X].l \longleftarrow \mathbf{E}_{\rm X}[X].l - {\sf log}_2\frac{\mathbf{L}_{\rm X}[X][X_l]}{\Sigma_l}$\;
- 			}
- 			$\Sigma_r \longleftarrow$ sum of co-occurrences of right neighbors in $\mathbf{R}_{\rm X}[X]$\;
- 			\For{each right neighbor $X_r$ in $\mathbf{R}_{\rm X}[X]$}{
- 				$\mathbf{E}_{\rm X}[X].r \longleftarrow \mathbf{E}_{\rm X}[X].r - {\sf log}_2\frac{\mathbf{R}_{\rm X}[X][X_r]}{\Sigma_r}$\;
- 			}
- 		}
- 		\KwRet{$\mathbf{E}_{\rm X}$}\;
- 	}
-
- 	\SetKwFunction{Ranking}{\sc Rank}
-   \SetKwProg{Fn}{function}{:}{}
- 	\Fn{\Ranking{$u, r, t, \mathbf{X}_{\rm tar}, \mathbf{E}_{\rm tar}, \mathbf{X}_{\rm aux}, \mathbf{E}_{\rm aux}, f$}}{
- 		initialize $\mathcal{R}_x \longleftarrow \emptyset$\;
- 		sort ciphertext chunks in $\mathbf{X}_{\rm tar}$ by frequencies\;
- 		sort plaintext chunks in $\mathbf{X}_{\rm aux}$ by frequencies\;
-		\For{$i \longleftarrow 1$ to $u$}{
- 			$C_i \longleftarrow$ $i$-th frequent ciphertext chunk\;
- 			initialize $d \longleftarrow$ MAX\_DISTANCE\;
- 			\uIf{$f$ is {\rm INIT}}{
- 				$m \longleftarrow$ maximum rank of $1$ and $i-r$\;
- 			}
- 			\uElseIf{$f$ is {\rm ITERA}}{
- 				$m \longleftarrow$ $i$\;
- 			}
- 			\For{$j \longleftarrow m$ to $i+r$}{ 
- 				$M_j \longleftarrow$ $j$-th frequent plaintext chunk\;
- 				\If{${\sf D}(C_i, M_j) < d$}{
- 					$M \longleftarrow M_j$\;
- 					$d \longleftarrow {\sf D}(C_i, M_j)$\;
- 				}
- 			}
- 			\If{${\sf D}(C_i, M) < t$}{
- 				add $(C_i, M)$ into $\mathcal{R}_x$\;
- 			}
- 		}
- 		\KwRet{$\mathcal{R}_x$}\;
-	}
-
-
-\end{algorithm}
+然后，继续采用先前基于数据块局部性的频率分析攻击\citing{li2017information}中的迭代方法（参见章节：\ref{sec:DistributionAttack-prior-attack}）来扩展推断的密文数据块-明文数据块对的覆盖范围。具体来说，对于每个推断的$(C_i, M_j)$，应用基于分布的频率分析方案（见上文）通过$C_i$和$M_j$的邻居迭代推断出更多的密文数据块-明文数据块对，在没有新的密文数据块-明文数据块对可以被推断时停止迭代，最终完成基于分布的频率分析攻击的全部过程。
  
 \subsection{基于分布的频率分析攻击方法总结} 
 
@@ -217,42 +113,33 @@ Note that \textsc{Robust-ranking} also returns $u$ highly frequent chunk pairs l
 \end{itemize}
 
 
-先前基于数据块局部性的频率分析攻击\cite{li2017information}可以被视为基于分布的频率分析攻击在$r=0$的参数配置下（即没有处理频率排名中的任何干扰）和$t \rightarrow \infty$（即没有过滤任何不正确的推理结果）的特殊情况。
+先前基于数据块局部性的频率分析攻击\citing{li2017information}可以被视为基于分布的频率分析攻击在$r=0$的参数配置下（即没有处理频率排名中的任何干扰）和$t \rightarrow \infty$（即没有过滤任何不正确的推理结果）的特殊情况。
 
-\section{Exploiting Size Leakage}
+\section{对数据块大小信息泄漏的利用}
 
-We propose an advanced variant of the distribution-based attack that operates with size information to further reduce false positives. Specifically, we assume that the size of each ciphertext in $\mathbf{C}$ reflects that of its original plaintext.   
+本文提出了基于分布的频率分析攻击的高级变体，它使用数据块大小信息来进一步减少误报。具体来说，假设$\mathbf{C}$中每个密文数据块的大小反映了其原始明文数据块的大小。 
 
-% The distribution-based attack addresses the precision of inference results by comparing relative frequency distributions. We argue that there is oppurtunity to further reduce the number of false positives by exploiting size leakage. Specifically, we make an additional assumption that  
+本文的想法建立在这样一个基本事实的基础上：如果密文$C$对应于明文$M$，则$C$的大小近似于$M$的大小。 这是因为加密重复数据删除在要加密的内容中保留了块（即，由对称加密操作的基本单元）的数量信息。 本文通过使用这个事实来进一步过滤不正确的密文数据块-明文数据块对$(C,M)$（$C$和$M$中的块数不同）。
 
-% The rationale is symmetric encryption (e.g., block cipher) preserves the number of blocks.
+在本课题中，假设每个块的大小都是16字节（AES加密的典型配置）。对于每个经过基于分布的频率分析攻击方法得到的明文数据块-密文数据块对$(C_i, M_j)$，分别将$C_i$和$M_j$中的块数导出为$b({C_i})$和$b({M_j})$：
 
-Our idea builds on the fundamental truth that if a ciphertext $C$ corresponds to a plaintext $M$, then the size of $C$ approximates that of $M$. This is because encrypted deduplication preserves the number of blocks (i.e., the basic units operated by symmetric encryption) in the content to be encrypted. We use this fact to further filter the incorrect ciphertext-plaintext pairs $(C, M)$, where the number of blocks in $C$ and $M$ are different.  
-
-% In other words, the number of blocks in each plaintext is exactly mapped to that in the corresponding ciphertext.     
-
-% Our idea is based on the fundamental truth that if $C$ is mapped from $M$, then the size of $C$ approximates that of $M$. This is because encrypted deduplication preserves the number of blocks. In other words, we can filter the candiate pair $(C_i, M_j)$, where the number of blocks of $C_i$ and $M_j$ are different. 
-
-In this work, we assume that each block is of 16 bytes, which is a typical configuration for AES. For each considered ciphertext-plaintext pair $(C_i, M_j)$, we derive the number of blocks in $C_i$ and $M_j$ as $b({C_i})$ and $b({M_j})$, respectively:
 \begin{eqnarray*}
 b({C_i}) = \lceil \frac{{\sf size}(C_i)}{16} \rceil, \nonumber \\
 b({M_j}) = \lceil \frac{{\sf size}(M_j)}{16} \rceil, \nonumber 
 \end{eqnarray*}
-where ${\sf size}(C_i)$ and ${\sf size}(M_j)$ are the exact sizes of $C_i$ and $M_j$, respecitively, and $\lceil x \rceil$ returns the smallest integer greater than or equal to $x$. In addition to R1 and R2 (see Section~\ref{sec:distribution-attack-description}), we apply the following requirement to filter by size:    
+
+其中${\sf size}(C_i)$和${\sf size}(M_j)$分别是$C_i$和$M_j$的确切大小， $\lceil x \rceil$ 返回了大于或等于$x$的最小整数。在基于分布的频率分析攻击中提出的过滤条件R1和R2（参见章节：\ref{sec:distribution-attack-description}）的基础上，给出以下过基于数据块中块数信息的滤条件:  
+ 
 \begin{itemize}[leftmargin=*]
     \item {\bf R3:} $b({C_i})$ equals $b({M_j})$.
 \end{itemize}
 
-The requirement R3 is effective to filter the incorrect ciphertext-plaintext pairs regarding variable-size chunks, where different chunks possibly have distinct sizes. However, for fixed-size chunks, it is always satisfied by the ciphertext-plaintext pairs, even they are incorret. Despite of this, we can still apply R1 and R2 to achieve high-precision attack.        
+对于使用可变大小的数据分块方法的加密重复数据删除中，不同的数据块可能具有不同的大小，因此使用R3可以有效进行过滤。然而，在使用固定大小的数据分块方法的机密重复数据删除中，R3对于任意一组$(C, M)$始终成立。但此时，仍然可以通过应用R1和R2来提高频率分析攻击的精度。
+     
 
-% for filtering false positives in terms of only variable-size chunks, where different chunks have possibly distinct sizes. On the other hand, it is always satisfied by fixed-size chunks, and cannot improve the precision of inference results in this case. Even so, we can still apply R1 and R2 to significantly reduce the amount of false positives in the locality-based attack \cite{li17} (see Section~\ref{sec:distribution-attack-description}).
+\section{本章小结}
 
-% by {\bf about 50\%} (see Section~\ref{sec:experiment-distribution}). 
-
-% percentage of false positives below 25\% .       
-
-
-
+本章介绍了本文提出的第一种改进的频率分析方法：基于分布的频率分析攻击方法。给出了该方法的形式定义、方法描述以及对数据块大小信息泄漏的扩展利用方法。                  
 
 
 

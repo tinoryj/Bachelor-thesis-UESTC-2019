@@ -15,7 +15,7 @@
     \label{fig:数据重删系统的存储模式}
 \end{figure}
 
-为了保护数据隐私，加密重复数据删除（encrypted deduplication）增加了一层作用于逻辑数据块的加密操作。如图\ref{fig:加密重复数据删除系统逻辑视图}所示，该加密层基于数据内容来产生加密密钥\citing{bellare2013message}（例如将数据块的散列值作为密钥\citing{douceur2002reclaiming}），从而将相同的明文数据块加密为相同的密文数据块。系统计算每个密文数据块的散列值(称为指纹，fingerprint)，查询指纹索引（fingerprint index）确定该数据块是否已经存储，最后保存仅具有唯一指纹的密文数据块。需要指出的是，部分加密重复数据删除方案\citing{bellare2013message}采用随机加密算法，但基于明文数据块产生指纹，因此仍然可以通过检查指纹来识别重复数据。
+为了保护数据隐私，加密重复数据删除（encrypted deduplication）增加了一层作用于逻辑数据块的加密操作。如图\ref{fig:加密重复数据删除系统逻辑视图}所示，该加密层基于数据内容来产生加密密钥\citing{bellare2013message}（例如将数据块的哈希值作为密钥\citing{douceur2002reclaiming}），从而将相同的明文数据块加密为相同的密文数据块。系统计算每个密文数据块的哈希值(称为指纹，fingerprint)，查询指纹索引（fingerprint index）确定该数据块是否已经存储，最后保存仅具有唯一指纹的密文数据块。需要指出的是，部分加密重复数据删除方案\citing{bellare2013message}采用随机加密算法，但基于明文数据块产生指纹，因此仍然可以通过检查指纹来识别重复数据。
 
 \begin{figure}[!htb]
     \small
@@ -62,12 +62,12 @@
 \label{sec:加密重复数据删除}
 在传统对称加密方式下，每个用户具有不同的密钥，不同用户之间的相同明文会被加密为不同密文，难以执行(密文)重复数据删除操作。
 
-消息锁定加密（message-locked encryption，MLE）确立了加密重复数据删除的密码学基础\citing{bellare2013message}:基于数据内容产生密钥(称为 MLE 密钥)，从而将相同明文加密为相同密文。最流行的MLE实例是收敛加密（convergent encryption，CE）\citing{douceur2002reclaiming}，它使用明文的散列值作为MLE密钥，并基于密文散列值计算指纹，以识别重复数据（如图\ref{fig:加密重复数据删除系统逻辑视图}）。基于CE的加密重复数据删除方案还包括:
+消息锁定加密（message-locked encryption，MLE）确立了加密重复数据删除的密码学基础\citing{bellare2013message}:基于数据内容产生密钥(称为 MLE 密钥)，从而将相同明文加密为相同密文。最流行的MLE实例是收敛加密（convergent encryption，CE）\citing{douceur2002reclaiming}，它使用明文的哈希值作为MLE密钥，并基于密文哈希值计算指纹，以识别重复数据（如图\ref{fig:加密重复数据删除系统逻辑视图}）。基于CE的加密重复数据删除方案还包括:
 
 \begin{enumerate}
-    \item 散列收敛加密（hash convergent encryption，HCE）\citing{douceur2002reclaiming}与CE具有相同的MLE密钥产生规则，但基于明文散列值计算指纹。
-    \item 随机收敛加密（random convergent encryption，RCE）\citing{douceur2002reclaiming}使用随机密钥加密以产生非确定的密文，同时也基于明文散列值来进行重复检查。
-    \item 收敛扩散（convergent dispersal，CD）\citing{li2016cdstore}使用明文散列值作为秘密共享（secret sharing）的输入种子，在兼容重复数据删除的基础上 提高了密文存储的可靠性。
+    \item 哈希收敛加密（hash convergent encryption，HCE）\citing{douceur2002reclaiming}与CE具有相同的MLE密钥产生规则，但基于明文哈希值计算指纹。
+    \item 随机收敛加密（random convergent encryption，RCE）\citing{douceur2002reclaiming}使用随机密钥加密以产生非确定的密文，同时也基于明文哈希值来进行重复检查。
+    \item 收敛扩散（convergent dispersal，CD）\citing{li2016cdstore}使用明文哈希值作为秘密共享（secret sharing）的输入种子，在兼容重复数据删除的基础上 提高了密文存储的可靠性。
 \end{enumerate}
 
 上述MLE实例基于明文产生MLE密钥（CE、HCE和CD）或指纹（HCE和RCE），如果明文是可预测的(即所有可能的明文的数量有限)，这些方案易于受到离线暴力破解攻击\citing{bellare2013message,keelveedhi2013dupless}。为了抵御该攻击，DupLESS\citing{keelveedhi2013dupless}基于第三方密钥服务器实现了服务器辅助 MLE（server-aided MLE），确保无法从离线明文派生出相应的MLE密钥。以服务器辅助MLE为基础，现有研究进一步解决了加密重复数据删除的故障容错\citing{li2015cdstore,duan2014distributed}、透明价格模型\citing{armknecht2015transparent}、点对点密钥管理\citing{liu2015secure}、层次密钥管理\citing{zhou2015secdep}等问题。围绕MLE扩展功能的一系列研究包括:兼容加密重复数据删除的数据完整性审计协议\citing{li2016secure}；支持动态访问控制的加密重复数据删除系统REED\citing{li2016rekeying,qin2017design}。

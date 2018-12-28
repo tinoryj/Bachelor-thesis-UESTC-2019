@@ -19,7 +19,7 @@
 \RequirePackage{mathspec}
 \RequirePackage{fontspec}
 \RequirePackage{bm}
-
+\RequirePackage{booktabs}
 \RequirePackage{xeCJK}
 \RequirePackage{ifplatform}
 
