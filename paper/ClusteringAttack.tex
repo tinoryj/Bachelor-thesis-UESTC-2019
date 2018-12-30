@@ -50,17 +50,23 @@ Broder定理\cite{broder1997resemblance}的定义为：两集合$S_1$和$S_2$，
     \label{fig:基于聚类的攻击方法的工作流程}
 \end{figure}
 
-为了利用相似性，我们首先在块流上引入{\ em segmentation}。具体来说，我们将$ \ mathbf {C} $分区为一组粗粒度数据单元，称为{\ em密文段}。每个密文段，由$ S_ \ mathbf {C} $表示，包含$ \ mathbf {C} $中的多个相邻密文。在这项工作中，我们实现了{\ em fixed-size}分段方案，以确保所有密文段具有相同的大小（例如，默认为4MB）。为了兼容性，相同的固定大小分段方案也适用于辅助信息$ \ mathbf {A} $，以便生成多个{\ em明文段}，每个段由$ S_ \ mathbf {A} $表示。注意，一些可变大小的分段方案\ cite {lillibridge09，qin17}在其内容与特定模式匹配的块之后识别分段边界，从而解决固定大小分段方案所面临的边界移位问题。但是，我们不能在攻击中使用这些可变大小的分段方案\ cite {lillibridge09，qin17}。原因是密文段中的块的原始内容受到对称加密的保护，我们无法确保密文和明文段的边界匹配相同的模式。这会导致密文和明文段之间不兼容，并且会降低基于群集的攻击所推断的段级数据量（请参阅本节后半部分）。
+为了利用相似，本文首先在数据块概念的基础上引入数据段的概念。具体来说，将$\mathbf{C}$划分为为一些粗粒度的数据单元，成为密文数据段。密文数据段使用$S_\mathbf{C}$来表示，其中包含有$\mathbf{C}$中的多个相邻的密文数据块。在本课题中，应用了定长分段方法，以确保每个数据段具有相同分的大小（例如，默认大小为4MB）。同样的，对于攻击者所具有的辅助信息$\mathbf{A}$，也同样使用定长分段方法产生多个明文数据段，每个数据段由$S_\mathbf{A}$表示。
 
-To exploit similarity, we first introduce {\em segmentation} on a stream of chunks. Specifically, we partition $\mathbf{C}$ into a set of coarse-grained data units, called {\em ciphertext segments}. Each ciphertext segment, denoted by $S_\mathbf{C}$, comprises multiple adjacent ciphertexts in $\mathbf{C}$. In this work, we implement the {\em fixed-size} segmentation scheme to ensure that all ciphertext segments are of the same size (e.g., 4MB by default). For compatibility, the same fixed-size segmentation scheme also applies to the auxiliary information $\mathbf{A}$, so as to generate multiple {\em plaintext segments}, each of which is denoted by $S_\mathbf{A}$. Note that some variable-size segmentation schemes \cite{lillibridge09, qin17}  identify segment boundaries after the chunks whose contents match a specific pattern and thus address the boundary shift problem faced by the fixed-size segmentation scheme. However, we cannot use these variable-size segmentation schemes \cite{lillibridge09, qin17} in the attack. The reason is that the original contents of chunks in ciphertext segments are protected by symmetric encryption, and we cannot ensure that the boundaries for both ciphertext and plaintext segments match the same pattern. This leads to an incompatibility between ciphertext and plaintext segments, and degrades the amount of segment-level data inferred by the clustering-based attack (see the late part of this section).    
+注意，一些可变大小的分段方案\cite{lillibridge2009sparse,qin2017design}在其内容与特定模式匹配的数据块之后设置分段边界，从而解决固定大小分段方案所面临的边界移位问题。但是，本文不能在攻击中使用这些可变大小的分段方案\cite{lillibridge2009sparse,qin2017design}。其原因是密文数据段中的数据块的原始内容受到对称加密的保护，攻击者无法确保密文和明文数据段的边界匹配采用的是相同的模式。该问题会导致密文和明文数据段不兼容，从而会降低基于聚类的攻击方法所推断的数据段级的数据量（请参阅本章后半部分）。
+ 
+本章通过类似的数据段来推断密文-明文对。
 
 We propose to infer ciphertext-plaintext pairs through similar segments. Let $S_\mathbf{M}$ be the original plaintext segment of a ciphertext segment $S_\mathbf{C}$ (i.e., each plaintext in $S_\mathbf{M}$ corresponds to some ciphertext in $S_\mathbf{C}$ and vice versa). According to Broder's theorem, if $S_\mathbf{M}$ shares the same minimum chunk hash, say $h$, with some plaintext segment $S_\mathbf{A}$, then $S_\mathbf{M}$  and $S_\mathbf{A}$ tend to have a large fraction of identical plaintexts. This implies that the ciphertexts in $S_\mathbf{C}$ are likely to be mapped from the plaintexts in  $S_\mathbf{A}$. In other words, we first classify all plaintext segments of $\mathbf{A}$ by their minimum chunk hashes, and obtain multiple {\em plaintext clusters}. Each plaintext cluster, denoted by $\mathcal{C}_\mathbf{A} = \{ S_\mathbf{A} \}$, corresponds to a unique minimum chunk hash shared by its included segments. We also group the ciphertext segments, whose original plaintext segments have the same minimum chunk hash $h$ (i.e., similar), into an identical {\em ciphertext cluster}, denoted by $\mathcal{C}_\mathbf{C} = \{ S_\mathbf{C} \}$. Then, we infer the original data of $\mathcal{C}_\mathbf{C}$ from some $\mathcal{C}_\mathbf{A}$ that corresponds to  $h$.    
 
-We propose a {\em clustering} scheme to group similar ciphertext segments. A na\"{i}ve approach is to classify segments by their minimum chunk hashes, but it does not work on ciphertext segments, whose original contents are protected by symmetric encryption. We address the classification issue based on Broder's theorem.   
+本文提出了一种聚类方案来对类似的密文数据段进行分组。一种简易的方法是按照最小数据块哈希对段进行分类，但它不适用于原始内容受到对称加密保护的密文数据段。本文基于Broder定理解决分类问题。
+  
+本文认为，如果两个密文数据段具有大部分相同的密文，那么它们对应于具有高概率的相同的最小块散列。 原因在于确定性加密保留了明文段的并集和交叉的基数，基于此我们可以使用Broder定理来学习它们的最小块散列的等价性。
   
 Our insight is that if two ciphertext segments have a large fraction of identical ciphertexts, then  they correspond to the same minimum chunk hash with a high probability. The reason is that deterministic encryption preserves the cardinalities of union and intersection of plaintext segments, based on which we can use Broder's theorem to learn the equivalence of their minimum chunk hashes.    
 
-In this work, we define the {\em clustering distance} $d(S_\mathbf{C}, S_\mathbf{C}')$ of any two ciphertext segments $S_\mathbf{C}$ and $S_\mathbf{C}'$ by one minus the fraction of their identical ciphertexts:
+在本文中，定义任意两个密文数据段$S_\mathbf{C}$和$S_\mathbf{C}'$的聚类距离$d(S_\mathbf{C},S_\mathbf{C}')$为1减去相同密文的分数：
+
+In this work, we define the clustering distance $d(S_\mathbf{C}, S_\mathbf{C}')$ of any two ciphertext segments $S_\mathbf{C}$ and $S_\mathbf{C}'$ by one minus the fraction of their identical ciphertexts:
 
 \begin{eqnarray}
 d(S_\mathbf{C}, S_\mathbf{C}') = 1 - \frac{|S_\mathbf{C} \cap S_\mathbf{C}'|}{|S_\mathbf{C} \cup S_\mathbf{C}'|}. \nonumber
@@ -75,7 +81,6 @@ We proceed the frequency analysis scheme as follows. First, we  sort available c
 \begin{eqnarray*}
     \Pr[C \in \mathcal{C}_\mathbf{C}] = \frac{\mathbf{F}[\mathcal{C}_\mathbf{C}][C]}{\sum_{C' \in \mathcal{C}_\mathbf{C}} \mathbf{F}[\mathcal{C}_\mathbf{C}][C']}, \\
     e(\mathcal{C}_\mathbf{C}) = \sum_{C \in \mathcal{C}_\mathbf{C}} \log_2 \frac{1}{\Pr[C \in \mathcal{C}_\mathbf{C}]},  
-    % e(\mathcal{C}_\mathbf{M}) = \sum_{M \in \mathbf{F}[\mathcal{C}_\mathbf{M}]} \log_2 \frac{\mathbf{F}[\mathcal{C}_\mathbf{M}][M]}{a} 
 \end{eqnarray*}
 
 where $\mathbf{F}[\mathcal{C}_\mathbf{C}][C]$  stores the frequency of $C$ in $\mathcal{C}_\mathbf{C}$. Similarly, we  compute the entropy $e(\mathcal{C}_\mathbf{A})$ for the plaintext cluster $\mathcal{C}_\mathbf{A}$. Like the distribution-based attack (see Section~\ref{sec:distribution-attack-description}), we configure the frequency analysis scheme with the parameters $(u, r, t)$, and infer that the ciphertext cluster $\mathcal{C}_\mathbf{C}$ is similar to a plaintext cluster $\mathcal{C}_\mathbf{A}$, if they satisfy the following requirements:
@@ -99,6 +104,10 @@ Then, for each pair $(\mathcal{C}_\mathbf{C}, \mathcal{C}_\mathbf{A})$ of simila
 \end{itemize}
 
 \subsection{本章小结}
+
+总而言之，基于聚类的攻击利用相似性，并在类似的聚类中启动频率分析以推断密文-明文对。 除$u$，$r$和$t$外，它还由参数$k$配置，该参数指定组合最近集群的上限距离。
+
+尽管可能受到固定大小段的边界偏移的影响，但我们认为基于群集的攻击对VM磁盘映像是严重的。 具体地，平坦的VM映像文件在创建时被分配固定大小，并且在其生存期内不能改变这样的大小。 VM映像中的所有未使用区域最初填充零块，可以进一步重写该块以用于在图像中存储附加数据。 在Section \ ref {sec：experiment-clustering}中，我们研究了针对VM映像的基于群集的攻击的有效性。
 
 To summarize, the clustering-based attack exploits similarity, and launches frequency analysis in similar clusters to infer ciphertext-plaintext pairs. In addition to  $u$, $r$ and $t$, it is configured by the parameter $k$, which specifies the upper bound distance in combining the closest clusters.   
 
