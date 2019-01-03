@@ -1,376 +1,111 @@
 \chapter{实验测试与分析}
 \label{sec:Experiment}
 
-In this section, we present the trace-driven evaluation results to demonstrate
-the severity of our proposed frequency analysis attacks against encrypted
-deduplication.
+在本章中，将给出基于真实世界数据集的评估结果，以证明本文针对加密重复数据删除提出的频率分析攻击方法的严重性与有效性。
 
 \section{Methodology}
 \label{sec:dataset}
 
-\begin{table}[!t]
-    \caption{Characteristics of experimental datasets.}
-\small
-\label{tab:dataset}
-\renewcommand{\arraystretch}{1.2}
-\vspace{-3pt}
-\centering
-\begin{tabular}{|c|c|c|c|}
-\hline
- \multirow{2}{*}{\bf Dataset} & \multirow{2}{*}{\bf Category} & \multicolumn{2}{c|}{\bf Characteristics in Each Snapshot} \\
-\cline{3-4}
-    & &  \#Logical (Million) & \#Unique (Million) \\
-\hline
-    \multirow{6}{*}{FSL} & User004  & 1.0-1.3 & 0.7-0.9\\
- \cline{2-4}
-              & User007 &  3.5-5.2 & 2.3-3.6 \\
- \cline{2-4}
-              & User012 &  25.0-26.4 & 8.9-9.7 \\
-\cline{2-4}
-              & User013 &  1.8-5.7 & 1.2-4.2 \\
-\cline{2-4}
-              & User015 &  13.4-20.5 & 9.0-11.0 \\
-\cline{2-4}
-              & User028 &  6.0-10.3 & 3.5-6.8 \\
-\hline
-\hline
-    \multirow{4}{*}{MS} & Win7  & 61.6-61.8 & 61.1-61.3\\
-\cline{2-4}
-              & Serv-03 & 10.6-10.7 & 8.4-8.5\\
-\cline{2-4}
-              & Serv-08 & $\sim$6.5 & $\sim$3.8 \\
-\cline{2-4}
-              & Vista-B &  $\sim$7.6 & $\sim$2.0\\
-\cline{2-4}
-              & Vista-U &  $\sim$21.0 & $\sim$10.4 \\
-\hline
-\hline
-
-    \multirow{6}{*}{VM} & User1  &  \multirow{6}{*}{2.6} & $\sim$0.9 \\
-\cline{2-2}
-\cline{4-4}
-              & User2 &  & 1.1-1.3 \\
-\cline{2-2}
-\cline{4-4}
-              & User3 &  & 0.9-1.1 \\
-\cline{2-2}
-\cline{4-4}
-              & User4 &  & $\sim$0.9 \\
-\cline{2-2}
-\cline{4-4}
-              & User5 &  & 0.9-1.0 \\
-\cline{2-2}
-\cline{4-4}
-              & User6 &  & 0.9-1.1 \\
-\hline
-\end{tabular}
-\medskip
-
-\raggedright
-    The notations \#Logical and \#Unique denote the total number of logical and unique chunks in each experimental snapshot, respectively. 
-    % All VM images have a fixed size of 10GB and hence the same number of logical chunks.
-\end{table}
+本文所使用的真实世界数据集不包数据的实际内容，因此我们模仿基于块哈希的对抗性知识。具体来说，我们在一些快照中使用有序的数据块哈希列表作为辅助信息$\mathbf{A}$和基本事实$\mathbf{M}$。为了模拟加密，我们在$\mathbf{M}$中的每个原始块散列（表示明文）上应用额外的散列函数，并将结果截断为特定于已使用数据集的约定位数。截断的结果模仿$\mathbf{C}$中的密文。对于每个推断的密文 - 明文对$(C,M)$，我们通过在$M$上应用相同的模拟加密并将结果与​​$C$进行比较来验证其正确性。请注意，基于聚类的攻击可以在段级别操作，并推断出密文 - 明文段对$(S_\mathbf{C},S_\mathbf {A})$。在这种情况下，我们检查$(S_\mathbf {C},S_\mathbf{A})$，检查$S_\mathbf{C}$中的每个密文是否完全映射到$S_\mathbf{A}$中的每个明文。
 
 
 
-%\begin{table}[!t]
-%\small
-%\caption{Experimental datasets.}
-%\label{tab:dataset}
-%\renewcommand{\arraystretch}{1.2}
-%\vspace{-3pt}
-%\centering
-%\begin{tabular}{|c|c|c|}
-%\hline
-%{\bf Dataset} & {\bf Category} & {\bf Approximate Logical Size} \\
-%\hline
-%\hline
-%\multirow{2}{*}{FSL} & Physical  & 431.9GB  & 659.3GB & 584.3GB \\
-%\multirow{6}{*}{FSL} & User004  & 10GB/backup $\times$ 14 backups \\
-%\cline{2-3}
-%			  & User007 & 39GB/backup $\times$ 14 backups \\
-%\cline{2-3}
-%			  & User012 & 244GB/backup $\times$ 14 backups \\
-%\cline{2-3}
-%			  & User013 & 22GB/backup $\times$ 14 backups\\
-%\cline{2-3}
-%			  & User015 & 158GB/backup $\times$ 14 backups\\
-%\cline{2-3}
-%			  & User028 & 77GB/backup $\times$ 14 backups\\
-%\hline
-%\hline
-%\multirow{4}{*}{MS} & WIN7  & 425GB/snapshot $\times$ 4 snapshots \\
-%\cline{2-3}
-%			  & Serv-03 & 78GB/snapshot $\times$ 4 snapshots \\
-%\cline{2-3}
-%			  & Serv-08 & 48GB/snapshot $\times$ 4 snapshots \\
-%\cline{2-3}
-%			  & Vista-B & 55GB/snapshot $\times$ 4 snapshots \\
-%\cline{2-3}
-%			  & Vista-U & 159GB/snapshot $\times$ 4 snapshots \\
-%
-%\hline
-%\hline
-%
-%\multirow{6}{*}{VM} & User1  & 25GB/backup $\times$ 13 backups \\
-%\cline{2-3}
-%			  & User2 & 28GB/backup $\times$ 13 backups \\
-%\cline{2-3}
-%			  & User3 & 26GB/backup $\times$ 13 backups \\
-%\cline{2-3}
-%			  & User4 & 25GB/backup $\times$ 13 backups\\
-%\cline{2-3}
-%			  & User5 & 25GB/backup $\times$ 13 backups\\
-%\cline{2-3}
-%			  & User6 & 27GB/backup $\times$ 13 backups\\
-%
-%\multicolumn{2}{|c|}{\bf Storage saving} & 98.6\% & 98.3\% \\
-%\hline
-%\end{tabular}
-%\end{table}
-%We evaluate our attacks using the following real-world datasets, whose
-%characteristics are summarized in Table~\ref{tab:dataset}. 
-%Table~\ref{tab:dataset} summarizes the characteristics of the experimental datasets used in our experiments. 
-%We evaluate our attacks using the following datasets. 
-%investigate the security implications of the leakages (see \S\ref{sec:background}) by means of simulated attacks, 
+Our datasets do not contain actual content, so we mimic the adversarial knowledge based on chunk hashes. Specifically, we use the ordered lists of chunk hashes in some snapshots as the auxiliary information $\mathbf{A}$ and the ground truth $\mathbf{M}$, respectively. To simulate encryption, we apply an additional hash function over each original chunk hash (that represents a plaintext) in $\mathbf{M}$, and truncate the result into an agreed number of bits specific to the used dataset. The truncated result mimics a ciphertext in $\mathbf{C}$. For each inferred ciphertext-plaintext pair $(C, M)$, we verify its correctness by applying the same simulated encryption on $M$ and comparing the result with $C$. Note that the clustering-based attack can operate at the segment level, and infer the ciphertext-plaintext segment pair $(S_\mathbf{C}, S_\mathbf{A})$.  In this case, we check $(S_\mathbf{C}, S_\mathbf{A})$ by examining each ciphertext in $S_\mathbf{C}$ is exactly mapped from each plaintext in $S_\mathbf{A}$.
 
-\begin{itemize}[leftmargin=*]
-\item 
-\textbf{FSL:} This dataset is collected by the File systems and
-        Storage Lab (FSL) at Stony Brook University \cite{sun16,FSL14,sun18}. We focus on
-the {\em fslhomes} snapshots, each of which includes an ordered list of 48-bit
-chunk hashes that are produced by variable-size chunking under an average size
-of 8KB, as well as the corresponding metadata information (e.g., chunk size,
-file name extension, etc). We pick the snapshots from January 22 to May 21 in
-2013, and select six users (i.e., User004, User007, User012, User013, User015,
-and User028) that have the complete daily snapshots over the whole duration.
-We collect these snapshots on a weekly basis, and hence form 14 weekly full
-backups for each user.  
-\item 
-\textbf{MS:} This dataset is collected by Microsoft
-\cite{meyer11} and publicized on SNIA \cite{ms}. The original dataset contains
-the Windows file system snapshots that span from September 5 to October 31,
-2009. Each snapshot is represented by the 40-bit chunk hashes under different
-average sizes obtained from Rabin fingerprinting \cite{rabin81}.  We focus on
-the snapshots that have been installed with the operating systems in the
-following categories: Windows 7 (Win7), Microsoft Windows Server 2003
-(Serv-03), Microsoft Windows Server 2008 (Serv-08), Microsoft Windows Vista
-Business Edition (Vista-B), and Microsoft Windows Vista Ultimate Edition
-(Vista-U). In each category, we pick four snapshots, each of which is
-configured with the average chunk size of 8KB.   
-\item 
-\textbf{VM:} This dataset is collected from a university programming course in
-Spring 2014. The original dataset includes a number of VM image snapshots for
-the students enrolled in the course, and each snapshot has a fixed size of
-10GB and is represented by the ordered list of SHA-1 hashes of 4KB fixed-size
-chunks. We focus on 6 users (i.e., User1-User6) and extract their snapshots
-into 13 weekly backups.  
-%Prior studies \cite{qin17, li15} have used some variants of the dataset for
-%different evaluation purposes, and we aim to validate the severity of the
-%clustering-based attack against VM disk images.   
-\end{itemize}
-
-
-Our datasets do not contain actual content, so we mimic the adversarial
-knowledge based on chunk hashes. Specifically, we use the ordered lists of
-chunk hashes in some snapshots as the auxiliary information $\mathbf{A}$ and
-the ground truth $\mathbf{M}$, respectively. To simulate encryption, we apply
-an additional hash function over each original chunk hash (that represents a
-plaintext) in $\mathbf{M}$, and truncate the result into an agreed number of
-bits specific to the used dataset. The truncated result mimics a ciphertext in
-$\mathbf{C}$. For each inferred ciphertext-plaintext pair $(C, M)$, we verify
-its correctness by applying the same simulated encryption on $M$ and comparing
-the result with $C$. Note that the clustering-based attack can operate at the
-segment level, and infer the ciphertext-plaintext segment pair $(S_\mathbf{C},
-S_\mathbf{A})$.  In this case, we check $(S_\mathbf{C}, S_\mathbf{A})$ by
-examining each ciphertext in $S_\mathbf{C}$ is exactly mapped from each
-plaintext in $S_\mathbf{A}$.
-
-% , although we cannot recover each chunk in the real attack.   
-% We count the leakage (see \S\ref{sec:threat}) of each ciphertext chunk, and use it for our inference attacks.  
-% MD5 on each hash (that represents a plaintext) in $\mathbf{M}$, and truncate the resulting hash into an agreed number of bits (e.g., 48-bit for FSL, 40-bit for MS, and 160-bit for VM).  
-
-We measure the severity of the attacks by the inference rate and the inference
-precision (see Section~\ref{sec:threat}). 
+We measure the severity of the attacks by the inference rate and the inference precision (see Section~\ref{sec:threat}). 
 
 \section{Results of Distribution-based Attack}
 \label{sec:experiment-distribution}
 
-\begin{figure*}[t]
+\begin{figure}[!htbp]
     \centering
-    \begin{tabular}{p{.31\textwidth}p{.31\textwidth}p{.31\textwidth}}
-        \multicolumn{3}{c}{\includegraphics[width=.7\textwidth]{pic/legend-fsl-line.pdf}} \smallskip \\
-        \includegraphics[width=.3\textwidth]{pic/distribution-impact-u.pdf} &
-        \includegraphics[width=.3\textwidth]{pic/distribution-impact-r.pdf} &
-	    \includegraphics[width=.3\textwidth]{pic/distribution-impact-t.pdf} \medskip \\
-        {\footnotesize 
-        \centering
-        (a) Impact of $u$: $r$ = 0; $t \rightarrow \infty$
-        } &
-        {\footnotesize
-        (b) Impact of $r$: $u$ = 128 for User004, User013 and User015, and $u$ = 256 for User007, User012 and User028; $t \rightarrow \infty$
-        } &
-        {\footnotesize
-        (c) Impact of $t$: $u$ = 128 for User004, User013 and User015, and $u$ = 256 for User007, User012 and User028; $r$ = 10
-        } \\
+    \begin{tabular}{p{.48\linewidth}p{.48\linewidth}}
+        \multicolumn{2}{c}{\includegraphics[width=.7\textwidth]{legend-fsl-line.pdf}}  \\
+        \includegraphics[width=\linewidth]{dis-impact-u-rate.pdf} &
+        \includegraphics[width=\linewidth]{dis-impact-u-accuracy.pdf}\\
     \end{tabular}
-    \caption{Experiment 1 (Impact of parameters): impact of $(u, r, t)$ in distribution-based attack.}
-    \label{fig:distribution-impact}
-\end{figure*}
+    \caption{基于分布的攻击实验1-参数$u$的变化对推理结果的影响（$r = 0$；$t \rightarrow \infty$）}
+    \label{fig:distribution-impact-u}
+\end{figure}
 
+\begin{figure}[!htbp]
+    \centering
+    \begin{tabular}{p{.48\linewidth}p{.48\linewidth}}
+        \multicolumn{2}{c}{\includegraphics[width=.7\textwidth]{legend-fsl-line.pdf}}  \\
+        \includegraphics[width=\linewidth]{dis-impact-r-rate.pdf} &
+        \includegraphics[width=\linewidth]{dis-impact-r-accuracy.pdf}\\
+    \end{tabular}
+    \caption{基于分布的攻击实验1-参数$r$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$t \rightarrow \infty$）}
+    \label{fig:distribution-impact-r}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \begin{tabular}{p{.48\linewidth}p{.48\linewidth}}
+        \multicolumn{2}{c}{\includegraphics[width=.7\textwidth]{legend-fsl-line.pdf}}  \\
+        \includegraphics[width=\linewidth]{dis-impact-t-rate.pdf} &
+        \includegraphics[width=\linewidth]{dis-impact-t-accuracy.pdf}\\
+    \end{tabular}
+    \caption{基于分布的攻击实验1-参数$t$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$r = 10$）}
+    \label{fig:distribution-impact-t}
+\end{figure}
 
 \subsection{Experiment 1 (Impact of parameters):}
-We evaluate the impact of the parameters $(u, r, t)$ in the distribution-based
-attack. We drive our evaluation using the FSL dataset, and use the 12th weekly
-backup of each user as the auxiliary information to infer original plaintexts
-in corresponding 14th weekly backup.  We configure $t \rightarrow \infty$ and $r$ = 0 to
-evaluate the impact of $u$ (in this case, the distribution-based attack
-reduces to the locality-based attack \cite{li17}). Our rationale is to avoid
-the disturbances by other parameters. 
+We evaluate the impact of the parameters $(u, r, t)$ in the distribution-based attack. We drive our evaluation using the FSL dataset, and use the 12th weekly backup of each user as the auxiliary information to infer original plaintexts in corresponding 14th weekly backup.  We configure $t \rightarrow \infty$ and $r$ = 0 to evaluate the impact of $u$ (in this case, the distribution-based attack reduces to the locality-based attack \cite{li17}). Our rationale is to avoid the disturbances by other parameters. 
 
-Figure~\ref{fig:distribution-impact}(a) shows the impact of $u$,
-when we vary $u$ from 2 to 512. Regarding inference rate, we have the same
-observation as the prior work \cite{li17}. Specifically, the inference rates
-first increase with $u$, since the attack can infer more ciphertext-plaintext
-pairs. After hitting the maximum values (e.g., 13.9\% for User004, 13.6\% for
-User007, 1.4\% for User012, 0.5\% for User013, 0.7\% for User015, and 6.1\%
-for User028), they decrease.  The reason is that the underlying frequency
-analysis introduces a large number of false positives that compromise the
-inferences over corresponding neighbors.    
+Figure~\ref{fig:distribution-impact}(a) shows the impact of $u$, when we vary $u$ from 2 to 512. Regarding inference rate, we have the same observation as the prior work \cite{li17}. Specifically, the inference rates first increase with $u$, since the attack can infer more ciphertext-plaintext pairs. After hitting the maximum values (e.g., 13.9\% for User004, 13.6\% for User007, 1.4\% for User012, 0.5\% for User013, 0.7\% for User015, and 6.1\% for User028), they decrease.  The reason is that the underlying frequency analysis introduces a large number of false positives that compromise the inferences over corresponding neighbors.    
 
-The prior work \cite{li17} does not report the inference precision about the
-attack. We observe that the inference precisions for all users are at a
-fairly low level (e.g., less than 40\%), except the case of $u = 2$ for
-User028 that does not introduce any false positives. On the other hand, the
-inference rate in the special case is about 0.0001\%, meaning that the attack
-only infers a few ciphertext-plaintext pairs. In addition, as $u$ increases,
-the inference precisions decrease slightly. For example, when $u$ increases
-from 2 to 512, the inference precision of User004 drops from 30.7\% to 12.8\%.      
+The prior work \cite{li17} does not report the inference precision about the attack. We observe that the inference precisions for all users are at a fairly low level (e.g., less than 40\%), except the case of $u = 2$ for User028 that does not introduce any false positives. On the other hand, the inference rate in the special case is about 0.0001\%, meaning that the attack only infers a few ciphertext-plaintext pairs. In addition, as $u$ increases,the inference precisions decrease slightly. For example, when $u$ increases from 2 to 512, the inference precision of User004 drops from 30.7\% to 12.8\%.      
 
-{\bf Observation (1) --} {\em A relatively larger $u$ increases the inference
-rate, yet it decreases the inference precision (i.e., more false positives are
-introduced). }
+{\bf Observation (1) --} {\em A relatively larger $u$ increases the inference rate, yet it decreases the inference precision (i.e., more false positives are introduced). }
 
-Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and
-User015, and at 256 for User007, User012 and User028, respectively, in order
-to evaluate the impact of $r$ and $t$. 
-% {\bf Note that the configuration
-% exceeds the best one that leads to the highest inference rate. PC: I don't
-% quite understand???} 
-Our rationale is to increase the coverage of inferred ciphertext-plaintext
-pairs, while we use $r$ and $t$ to filter possibly false positives. 
+Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and User015, and at 256 for User007, User012 and User028, respectively, in order to evaluate the impact of $r$ and $t$.  Our rationale is to increase the coverage of inferred ciphertext-plaintext pairs, while we use $r$ and $t$ to filter possibly false positives. 
 
-We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure~\ref{fig:distribution-impact}(b) shows the results. We observe that the
-inference rates of majority users increase with $r$. For example, when we vary
-$r$ from 0 to 16, the inference rates grow from 9.5\% to 16.0\%, from 10.0\%
-to 13.0\%, from 0.5\% to 0.7\%, and from 4.7\% to 5.6\% for User004, User007,
-User013, and User028, respectively. The reason is that the distribution-based
-attack addresses disturbances to frequency ranking, and infer more correct
-ciphertext-plaintext  pairs. On the other hand, the inference rates decrease
-slightly from 1.3\% to 0.8\% and from 0.6\% to 0.4\% for User012 and User015,
-respectively. The reason is that they examine a large range of plaintexts and
-may introduce more false positives. In addition, the inference precisions for
-all users are  at a low level (e.g., less than 45\%), and have similar
-tendencies with corresponding inference rates.  
+We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure~\ref{fig:distribution-impact}(b) shows the results. We observe that the inference rates of majority users increase with $r$. For example, when we vary $r$ from 0 to 16, the inference rates grow from 9.5\% to 16.0\%, from 10.0\% to 13.0\%, from 0.5\% to 0.7\%, and from 4.7\% to 5.6\% for User004, User007, User013, and User028, respectively. The reason is that the distribution-based attack addresses disturbances to frequency ranking, and infer more correct ciphertext-plaintext  pairs. On the other hand, the inference rates decrease slightly from 1.3\% to 0.8\% and from 0.6\% to 0.4\% for User012 and User015, respectively. The reason is that they examine a large range of plaintexts and may introduce more false positives. In addition, the inference precisions for all users are  at a low level (e.g., less than 45\%), and have similar tendencies with corresponding inference rates.  
 
-{\bf Observation (2) --} {\em A larger $r$ provides more opportunities of
-identifying correct ciphertext-plaintext pairs, yet it also increases the
-probability of having false positives.}   
+{\bf Observation (2) --} {\em A larger $r$ provides more opportunities of identifying correct ciphertext-plaintext pairs, yet it also increases the probability of having false positives.}   
 
-Then, we fix $r$ = 10 and evaluate the impact of $t$. 
-Figure~\ref{fig:distribution-impact}(c) shows the results. When $t$ is small
-(e.g., less than 0.5), we observe that the attack misjudges and filters a
-significant number of ciphertext-plaintext pairs, even they are correct. This
-introduces {\em false negatives} that reduce the inference rate. As $t$
-increases, the number of false negatives decreases.  When $t$ = 1.5, the
-inference rates hit the maximum values at 21.2\%, 18.2\%, 10.4\%, 1.2\%,
-1.2\%, and 13.5\% for User004, User007, User012, User013, User015, and
-User028, respectively. When $t$ further increases to 2, the corresponding
-inference rates drop to 20.5\%, 17.1\%, 8.3\%, 1.2\%, 1.0\%, and 11.2\%,
-respectively. The reason is that if $t$ is too large, it cannot filter false
-positives effectively. For the same reason, the inference precisions for all
-users decrease with $t$.  
-% The inference rates first  increase with $t$, since the number of false negatives (i.e., misjudge some correctly inferred ciphertext-plaintext pairs in filtering) are reduced.  
-
-% implies that the distribution-based attack  returns more incorrect ciphertext-plaintext chunk pairs, which affects attack severity.  
-
+Then, we fix $r$ = 10 and evaluate the impact of $t$.  Figure~\ref{fig:distribution-impact}(c) shows the results. When $t$ is small (e.g., less than 0.5), we observe that the attack misjudges and filters a significant number of ciphertext-plaintext pairs, even they are correct. This introduces {\em false negatives} that reduce the inference rate. As $t$ increases, the number of false negatives decreases.  When $t$ = 1.5, the inference rates hit the maximum values at 21.2\%, 18.2\%, 10.4\%, 1.2\%, 1.2\%, and 13.5\% for User004, User007, User012, User013, User015, and User028, respectively. When $t$ further increases to 2, the corresponding inference rates drop to 20.5\%, 17.1\%, 8.3\%, 1.2\%, 1.0\%, and 11.2\%, respectively. The reason is that if $t$ is too large, it cannot filter false positives effectively. For the same reason, the inference precisions for all users decrease with $t$.  
 
 {\bf Observation (3) --} {\em A smaller $t$ filters a large fraction of false
 positives, yet it introduces more false negatives.}   
 
 
 \subsection{Experiment 2 (Comparison with prior attack):}
-We compare the severity of the distribution-based attack with that of the
-locality-based attack \cite{li17}. In addition to using the FSL dataset like
-Experiment~1, we include the MS dataset for cross-dataset validation.
-Specifically, for each MS category, we choose two snapshots at a time, use one
-to infer the other, and evaluate the average inference rate and precision. 
+We compare the severity of the distribution-based attack with that of the locality-based attack \cite{li17}. In addition to using the FSL dataset like Experiment~1, we include the MS dataset for cross-dataset validation. Specifically, for each MS category, we choose two snapshots at a time, use one to infer the other, and evaluate the average inference rate and precision. 
 
 We consider the following attack instances for comparison. 
-%
+
 \begin{itemize}[leftmargin=*]
 \item 
-$\tt Baseline$: We re-implement the locality-based attack based on the
-parameter configuration suggested in \cite{li17}. Specifically, it infers 5
-most frequent ciphertext-plaintext pairs in the first invocation (i.e., to
-initialize a set of ciphertext-plaintext pairs for iteration) of frequency
-analysis, and 30 in each following invocation (i.e., to iteratively infer ciphertext-plaintext pairs from 
- neighbors).  
+$\tt Baseline$: We re-implement the locality-based attack based on the parameter configuration suggested in \cite{li17}. Specifically, it infers 5 most frequent ciphertext-plaintext pairs in the first invocation (i.e., to initialize a set of ciphertext-plaintext pairs for iteration) of frequency analysis, and 30 in each following invocation (i.e., to iteratively infer ciphertext-plaintext pairs from neighbors).  
 \item 
-$\tt Distribution$ and $\tt Distribution^S$: We consider two attack instances
-of the distribution-based attack, denoted by $\tt Distribution^S$ and ${\tt
-Distribution}$, which operate with and without size information,
-        respectively (i.e., the superscript $\tt S$ indicates that the attack instance operates with size information). 
-        We configure $\tt Distribution^S$ and ${\tt Distribution}$
-under the same configuration of  ${\tt Baseline}$. In addition, we choose
-$r$ and $t$ in both  $\tt Distribution^S$ and ${\tt Distribution}$ in the following way: for the FSL dataset, we fix $r$ = 10 for
-all users, and individually set $t$ = 1.5, 1.2, 1, 1, 0.7, and 0.9 for
-User004, User007, User012, User013, User015, and User028, respectively; for
-the MS dataset, we also fix $r$ = 10 for all categories, and set $t$ = 2 for
-Win7 and Serv-08, and $t$ = 1.6 for Vista-U, Serv-03, and Vista-B, respectively.
-This is informed by our tests for optimal configurations of the datasets.   
+$\tt Distribution$ and $\tt Distribution^S$: We consider two attack instances of the distribution-based attack, denoted by $\tt Distribution^S$ and ${\tt Distribution}$, which operate with and without size information, respectively (i.e., the superscript $\tt S$ indicates that the attack instance operates with size information). We configure $\tt Distribution^S$ and ${\tt Distribution}$ under the same configuration of  ${\tt Baseline}$. In addition, we choose $r$ and $t$ in both  $\tt Distribution^S$ and ${\tt Distribution}$ in the following way: for the FSL dataset, we fix $r$ = 10 for all users, and individually set $t$ = 1.5, 1.2, 1, 1, 0.7, and 0.9 for User004, User007, User012, User013, User015, and User028, respectively; for the MS dataset, we also fix $r$ = 10 for all categories, and set $t$ = 2 for Win7 and Serv-08, and $t$ = 1.6 for Vista-U, Serv-03, and Vista-B, respectively. This is informed by our tests for optimal configurations of the datasets.   
 \item 
-$\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$:
-We consider two additional distribution-based attack instances, denoted by $\tt Distribution$-$\tt o$
-and $\tt Distribution^S$-$\tt o$, which apply the same configurations for $r$ and $t$ as with $\tt Distribution$ and $\tt
-Distribution^S$, and further use larger $u$ to increase the
-coverage of inferred ciphertext-plaintext pairs.  
-        Specifically, we configure $u$ in $\tt Distribution$-$\tt o$
-and $\tt Distribution^S$-$\tt o$ in the following way:  
-        for the FSL
-dataset, we apply the same configuration of $u$ in Experiment~1; for the MS
-dataset, we set $u$ = 128 for Win7, and $u$ = 30 for Serv-03, Serv-08,
-Vista-B, and Vista-U. 
-        % Our rationale is to increase
-% the inference rate, while we expect  this only leads to a slight
-% degradation of the inference precision since the distribution-based attack
-% filters a large fraction of false positives. 
+$\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$: We consider two additional distribution-based attack instances, denoted by $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$, which apply the same configurations for $r$ and $t$ as with $\tt Distribution$ and $\tt Distribution^S$, and further use larger $u$ to increase the coverage of inferred ciphertext-plaintext pairs.  Specifically, we configure $u$ in $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$ in the following way:  for the FSL dataset, we apply the same configuration of $u$ in Experiment~1; for the MS dataset, we set $u$ = 128 for Win7, and $u$ = 30 for Serv-03, Serv-08, Vista-B, and Vista-U. 
+
 \end{itemize}
 
 \begin{figure*}[t]
     \centering
-    \begin{tabular}{c@{\hskip 2em}c}
-        \multicolumn{2}{c}{\includegraphics[width=.7\textwidth]{pic/legend-fsl-bar.pdf}} \smallskip \\
-        \includegraphics[height=2.1in]{pic/distribution-comparison-fsl.pdf} &
-        \includegraphics[height=2.1in]{pic/distribution-comparison-ms.pdf} \medskip \\
-        {\footnotesize 
-        (a) FSL dataset 
-        } &
-        {\footnotesize
-        (b) MS dataset 
-        } \\
+    \begin{tabular}{c}
+        \includegraphics[width=.7\textwidth]{pic/legend-fsl-bar.pdf}\\
+        \includegraphics[width=.7\textwidth]{pic/distribution-comparison-fsl.pdf} 
     \end{tabular}
-    \caption{Experiment 2 (Comparison with prior attack): comparison of attack severity for distribution-based attack and locality-based attack.}
+    \caption{Experiment 2 FSL dataset  (Comparison with prior attack): comparison of attack severity for distribution-based attack and locality-based attack.}
     \label{fig:distribution-comparison}
 \end{figure*}
 
+\begin{figure*}[t]
+    \centering
+    \begin{tabular}{c}
+        \includegraphics[width=.7\textwidth]{pic/legend-fsl-bar.pdf}\\
+        \includegraphics[width=.7\textwidth]{pic/distribution-comparison-ms.pdf}\\
+    \end{tabular}
+    \caption{Experiment 2 MS dataset (Comparison with prior attack): comparison of attack severity for distribution-based attack and locality-based attack.}
+    \label{fig:distribution-comparison}
+\end{figure*}
 
-
-% \begin{itemize}[leftmargin=*]
-	% \item {\em Distribution-I:} We configure our proposed distribution-based attack with the {\em same} configuration of the baseline above. Informed by Experiment 3, we further choose the distribution-based ranking parameters in the following way: for the FSL dataset, we fix $r$ = 10 for all users, and individually set $t$ = 1.5, 1.2, 1, 1, 0.7, and 0.9 for User004, User007, User012, User013, User015, and User028; for the MS dataset, we fix $r$ = 10 for all categories, and configure $t$ as 2 for Win7 and Serv-08 and as 1.6 for Vista-U, Serv-03, and Vista-B, respectively.   
-
-	% \item {\em Distribution-II:} We configure our proposed distribution-based attack with the same ranking configuration of distribution-I, while building on a larger $u$ to infer more chunk pairs. The rationale is to increase inference rate, while we expect the inference precision is degraded slightly as the attack can filter out unreasonable inferences. Specifically, for the FSL dataset, we set $u$ = 128 for User004, User013 and User015, and $u$ = 256 for User007, User012 and User028, respectively; for the MS dataset, we set $u$ = 128 for Win7, and $u$ = 30 for Serv-03, Serv-08, Vista-B, and Vista-U, respectively.
-% \end{itemize}
 
 Figure~\ref{fig:distribution-comparison}(a) shows the
 comparison results of the FSL dataset. We observe that different instances of
@@ -436,20 +171,25 @@ inferred by the frequency analysis attacks.
 \begin{figure*}[t]
      \centering
     \centering
-    \begin{tabular}{c@{\hskip 2em}c}
-        \multicolumn{2}{c}{\includegraphics[width=.25\textwidth]{pic/legend-effectiveness.pdf}} \smallskip \\
-        \includegraphics[height=2.2in]{pic/distribution-effectiveness-wo-size.pdf} &
-	\includegraphics[height=2.2in]{pic/distribution-effectiveness-w-size.pdf} \medskip \\
-        {\footnotesize 
-        (a) Distribution-based attack without size information  
-        } &
-        {\footnotesize
-        (b) Distribution-based attack with size information 
-        } \\
+    \begin{tabular}{c}
+        \includegraphics[width=.35\textwidth]{pic/legend-effectiveness.pdf}\\
+        \includegraphics[width=.7\textwidth]{pic/distribution-effectiveness-wo-size.pdf}
     \end{tabular}
-	\caption{Experiment 3 (Attack effectiveness): severity of distribution-based attack in FSL dataset.}
+	\caption{Experiment 3 Distribution-based attack without size information  (Attack effectiveness): severity of distribution-based attack in FSL dataset.}
 	\label{fig:experiment-distribution-effectiveness}
 \end{figure*}
+
+\begin{figure*}[t]
+     \centering
+    \centering
+    \begin{tabular}{c}
+        \includegraphics[width=.35\textwidth]{pic/legend-effectiveness.pdf}\\
+        \includegraphics[width=.7\textwidth]{pic/distribution-effectiveness-w-size.pdf}
+    \end{tabular}
+	\caption{Experiment 3 Distribution-based attack with size information (Attack effectiveness): severity of distribution-based attack in FSL dataset.}
+	\label{fig:experiment-distribution-effectiveness}
+\end{figure*}
+
 
 
 \subsection{Experiment 3 (Attack effectiveness):} We consider a long-term

@@ -1,210 +1,33 @@
 \chapter{相关工作}
 \label{sec:RelatedWork}
 
-\noindent
-{\bf MLE instantiations:}  
-Recall from Section~\ref{sec:background} that MLE \cite{bellare13a} formalizes the
-cryptographic foundation of encrypted deduplication.  The first published MLE
-instantiation is convergent encryption (CE) \cite{douceur02}, which uses the
-cryptographic hash of a plaintext and its corresponding ciphertext as the
-MLE key and the tag, respectively.  Other CE variants include: hash convergent
-encryption (HCE) \cite{bellare13a}, which derives the tag from the plaintext
-while still using the hash of the plaintext as the MLE key; random convergent
-encryption (RCE) \cite{bellare13a}, which encrypts a plaintext with a fresh
-random key to form a non-deterministic ciphertext, protects the random key by
-the MLE key derived from the hash of the plaintext, and attaches a
-deterministic tag derived from the plaintext for duplicate checks; and
-convergent dispersal (CD) \cite{li15}, which extends CE to secret sharing by
-using the cryptographic hash of a plaintext as the random seed of a secret
-sharing algorithm.  Since all the above instantiations derive MLE keys and/or
-tags from the plaintexts {\em only}, they are vulnerable to the offline
-brute-force attack \cite{bellare13b} if the plaintext is {\em predictable}
-(i.e., the number of all possible plaintexts is limited) , as an adversary can
-exhaustively derive the MLE keys and tags from all possible plaintexts and
-check if any plaintext is encrypted to a target ciphertext (in CE, HCE, and
-CD) or mapped to a target tag (in RCE).  The brute-force attack has been
-demonstrated to learn file information \cite{ce_attack}.
+\section{MLE的应用}
 
-%Suppose an adversary learns  that the underlying message of a target
-%ciphertext is drawn from a publicly available set. To recover the underlying
-%message, the adversary tries each possible message from the public set,
-%derives corresponding MLE key, and uses the derived key to decrypt the
-%target ciphertext. If the decryption result equals the tried message, the
-%adversary can deduce the underlying message.  
+回顾\ref{sec:background}，MLE\citing{bellare2013message}正式确立了加密重复数据删除的加密方案基础。第一个发布的MLE实例是收敛加密（CE）\citing{douceur2002reclaiming}，它使用明文的加密哈希及其对应的密文作为MLE密钥和标签。其他CE的变体包括：散列收敛加密（HCE）\citing{bellare2013message}，它从明文中导出标记，同时仍然使用明文的哈希作为MLE密钥；随机收敛加密（RCE）\citing{bellare2013message}，用新的随机密钥加密明文以形成非确定性密文，通过从明文的哈希中导出的MLE密钥保护随机密钥，并附加来自明文的确定性标签以实现数据块重复性的检查；收敛扩散加密（CD）\citing{li2015cdstore}，它通过使用明文的加密哈希作为秘密共享算法的随机种子，将CE扩展到秘密共享。由于所有上述实例仅从明文中获取MLE密钥和（或）标签，如果明文是可预测的（即，所有可能的明文的总数量有限），它们很容易受到离线暴力攻击\citing{keelveedhi2013dupless}的影响，因为攻击者可以从所有可能的明文中穷举地导出MLE密钥和标签，并检查是否存在某种明文被加密到目标密文（在CE，HCE和CD中）或映射到目标标签（在RCE中）。
 
-% {\em HCE1} and {\em HCE2} \cite{bellare13a} derive tag from client side, and
-% upload it along with ciphertext for deduplication. They offer better
-% performance for the storage system, which can simply read the tag from
-% uploads rather than computing it by hashing a possibly long ciphertext.
-% {\em Random convergent encryption (RCE)} \cite{bellare13a} encrypts a
-% message with a fresh random key, and protects the random key with the  MLE
-% key of the message. RCE is more efficient, since it can combine both
-% encryption and key generation into a single concerted pass over the message
-% \cite{bellare13a}. On the other hand, RCE needs to attach a deterministic
-% tag to the random ciphertext for checking duplicates. In addition to
-% improving performance, {\em convergent dispersal} \cite{li15} replaces the
-% random input of secret sharing by the cryptographic hash of message, so as
-% to  augment CE with fault-tolerate storage.  
-  
-% CE has been implemented in a wide variety of storage systems \cite{adya02, elephantdrive, mega, gnunet, freenet, cryptosphere, cox02, storer08, anderson10}. 
-	
-% compute the tag $T = {\sf H}({\sf H}(M))$ as a double hash over plaintext message, and require to upload $T$ along with ciphertext for efficient deduplication. 
-% A special note is RCE needs to places an appropriate tag along with ciphertext for deduplication, since its ciphertext is random. 
-% Like HCE1 and HCE2, RCE , and 
-% the message encryption and MLE key derivation of RCE can be combined into a single concerted pass over the possibly long message.   
+暴力攻击已经被证明可以用来获取文件信息\citing{wilcox2008drew}。为了防止离线暴力攻击，DupLESS\citing{keelveedhi2013dupless}通过在独立密钥服务器中管理MLE密钥来实现服务器辅助MLE，从而确保无法从离线消息中获得每个MLE密钥。DupLESS采用两种机制来实现强大的MLE密钥管理：
+\begin{enumerate}
+    \item \textbf{无关密钥生成：}
+        
+        DupLESS中客户端总是在不向密钥服务器显示消息内容的前提下从密钥服务器获得确定性MLE密钥。
+    \item \textbf{密钥生成频率限制：}
+        
+        DupLESS中的密钥服务器通过限制来自客户端的密钥生成请求频率，防止在线暴力攻击。
+\end{enumerate}
 
-To protect against the offline brute-force attack, DupLESS \cite{bellare13b}
-implements server-aided MLE by managing MLE keys in a standalone key server,
-which ensures that each MLE key cannot be derived from a message offline.
-DupLESS employs two mechanisms to achieve robust MLE key management: (i)
-oblivious key generation, in which a client always obtains a deterministic MLE
-key for a message from the key server without revealing the message content to
-the key server, and (ii) rate limiting, which limits the key generation
-requests from the client and prevents the online brute-force attack.  Other
-studies extend server-aided MLE to address various aspects, such as reliable
-key management \cite{duan14}, transparent pricing \cite{armknecht15},
-peer-to-peer key management \cite{liu15}, and rekeying \cite{qin17}.  However,
-server-aided MLE still builds on deterministic encryption.  To our
-knowledge, existing MLE instantiations (based on either CE or server-aided
-MLE) are all vulnerable to the inference attacks studied in this paper.  
+其他研究扩展了服务器辅助MLE的各个方面，例如可靠的密钥管理\citing{duan2014distributed}，透明定价\citing{armknecht2015transparent}，点对点密钥管理\citing{liu2015secure}和密钥转换（所属权变更） \citing{qin2017design}。但是服务器辅助MLE仍然建立在确定性加密的基础之上，现有的MLE实例（基于CE或服务器辅助MLE）都容易受到本文研究的推理攻击方法的攻击。
 
-%In addition, existing MLE instantiations lack active protection against the
-%size 
-%vulnerabilities explored in this paper, since they generate deterministic
-%ciphertexts or tags for deduplication. In addition, they lack active
-%protection against the size and order leakages, which can be exploited to
-%increase the severity of frequency analysis.     
+\section{对（加密）重复数据删除的攻击} 
 
-%SS \cite{bellare13b}, follow-up studies (see \cite{shin17} for a complete
-%survey) address additional issues, including . Liu {\em et al.} \cite{liu15}
-%propose to encrypt each message with a random key, and share the key among
-%the clients that have the same message. This prevents brute-force attack due
-%to the use of random keys, while mitigating security dependence on a global
-%secret.  
-
-% All above MLE instantiations transform identical message to the same ciphertext or tag, and hence incur the frequency leakage. They also lack of active protection against the size and order leakages. 
-% via password-based key exchange. This addresses , and also prevents brute-force attack. 
-% Liu {\em et al.} \cite{liu15} propose to share encryption keys via a password-based key exchange protocol, so as to mitigate the dependence of the key manager. All above works apply deterministic encryption and are susceptible to frequency leakage. They also lack of active protection against the size and order leakages.
-
-\section{Attacks against (encrypted) deduplication:} In addition to the
-offline brute-force attack, previous studies consider various attacks against
-deduplication storage, and such attacks generally apply to encrypted
-deduplication as well.  For example, the side-channel attack
-\cite{harnik10,halevi11} enables adversaries to exploit the deduplication
-pattern to infer the content of uploaded files from target users or gain
-unauthorized access in client-side deduplication; it is shown that the
-side-channel attack (and other related attacks) was successfully launched
-against Dropbox in 2010 \cite{mulazzani11}.  The duplicate-faking attack
-\cite{bellare13a} compromises message integrity via inconsistent tags.
-Ritzdorf {\em et al.} \cite{ritzdorf16} exploit the leakage of the chunk size
-to infer the existence of files.  The locality-based attack \cite{li17}
-exploits frequency analysis to infer ciphertext-plaintext pairs.  Our
-work follows the line of work on inference attacks \cite{ritzdorf16,li17}, yet
-provides a more in-depth study of inference attacks against encrypted
-deduplication via various types of leakage. 
+除了离线暴力攻击之外，之前的研究还考虑了针对重复数据删除存储的各种攻击，此类攻击通常也适用于加密重复数据删除。例如，侧信道攻击\citing{harnik2010side,halevi2011proofs}使攻击者可以利用重复数据删除的运作模式来推断目标用户上传文件的具体内容，或者在客户端重复数据删除中获取未经授权的访问权限；例如，2010年针对“Dropbox”成功发起了侧通道攻击（以及其他相关攻击）\citing{mulazzani2011dark}。重复伪造攻击\citing{bellare2013message}通过利用不一致的标签破坏了消息的完整性。Ritzdorf等人在其工作中利用数据块大小的泄漏来推断文件的存在性\citing{ritzdorf2016information}。基于数据块局部性的攻击\citing{li2017information}利用频率分析来推断密文数据块-明文数据块对。本文的工作在推理攻击的已有工作\citing{ritzdorf2016information,li2017information}，通过利用各种类型的泄漏给出了针对加密重复数据删除的推理攻击的更深入研究。
    
-%Our distribution-based attack inherently implies the prior attack \cite{li17}
-%(see \S\ref{sec:distribution-attack-description}). We also propose the
-%clustering-based attack that does not need the knowledge of fine-grained
-%chunk orders.  
-\section{Defense mechanisms:} 
-Section~\ref{sec:countermeasure} discusses the countermeasures agasint the frequency, order and size leakage of encrypted deduplication. 
-Additional defense mechanisms are designed to protect against other types of attacks.  
-% Several countermeasures are designed to defend
-% against the attacks on encrypted deduplication.  
-As mentioned above,
-server-aided MLE \cite{bellare13b} can defend against the offline brute-force
-attack. Server-side deduplication \cite{li15,harnik10,armknecht17} and
-proof-of-ownership \cite{xu13,pietro12,halevi11} can defend against the
-side-channel attack.  Server-side tag generation \cite{douceur02,bellare13b}
-and guarded decryption \cite{bellare13a} can defend against the
-duplicate-checking attack.  
+\section{防御机制} 
 
-% MinHash encryption \cite{qin17} disturbs the
-% frequency ranking of ciphertexts and is shown to defend against the frequency
-% analysis based on the locality-based attack via trace analysis.  Several
-% extended MLE instantiations build on strong cryptographic primitives to defend
-% against the inference attacks, such as randomized encryption that supports
-% equality testing \cite{abadi13}, hybrid encryption \cite{stanek14}, and
-% interactions with fully homomorphic encryption \cite{bellare15}, yet how they
-% are implemented and deployed in practice remains unexplored. 
-
-\section{Inference attacks:}  Several inference attacks have been proposed
-against encrypted databases
-\cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18} and 
-keyword search \cite{zhang16b,grubbs16,pouliot16,cash15,islam12}.  They all
-exploit the deterministic encryption nature to identify different types of
-leakage.  Our work differs from them by specifically focusing on frequency analysis against encrypted
-deduplication. 
-
-%construct inference attacks against encrypted databases. Naveed {\em et al.}
-%\cite{naveed15} propose attacks to recover the plaintext records of {\em
-%CryptDB} \cite{popa11a}. Kellaris {\em et al.} \cite{kellaris16} and
-%Lacharite {\em et al.} \cite{lacharite18} analyze the volumes of the data
-%returned by range queries, and present generic reconstruction attacks on
-%database entries. Grubbs {\em et al.} \cite{grubbs16}, Bindschaedler {\em
-%et al.} \cite{bindschaedler17}, and Durak {\em et al.} \cite{durak16}
-%show how to recover the plaintexts from the database column encrypted by
-%order-revealing encryption. 
-%
-%target keyword search. Islam {\em et al.} \cite{islam12} exploit the leakage of access pattern, and recover the plaintext keywords associated with files. Cash {\em et al.} \cite{cash15} and Pouliot \cite{pouliot16} examine the security of searchable encryption under different leakage profiles. Zhang {\em et al.} \cite{zhang16b} propose file-injection attacks to recover searchable keywords. Grubbs \cite{grubbs16} build attacks against {\em Mylar} \cite{popa14} that is a practical system with keyword search enabled.    This paper differs from the above works \cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18,zhang16b,grubbs16,pouliot16,cash15,islam12} by launching inference attacks against encrypted deduplication.   
+ 在\ref{sec:Countermeasure}中讨论了针对加密重复数据删除的频率，顺序和大小泄漏的应对对策。而其他防御机制旨在防范其他类型的攻击。
+ 
+如上所述，服务器辅助的MLE\citing{keelveedhi2013dupless}可以抵御离线暴力攻击。服务器端重复数据删除\citing{li2015cdstore,harnik2010side,armknecht2017side}和所有权证明\citing{xu2013weak,di2012boosting,halevi2011proofs}可以抵御侧信道攻击。服务器端标签生成\citing{douceur2002reclaiming,keelveedhi2013dupless}和受保护的解密\citing{bellare2013message}可以抵御重复检查攻击。
 
 
-%Other studies \cite{zhang16b,grubbs16,pouliot16,cash15,islam12} target keyword search. Islam {\em et al.} \cite{islam12} exploit the leakage of access pattern, and recover the plaintext keywords associated with files. Cash {\em et al.} \cite{cash15} and Pouliot \cite{pouliot16} examine the security of searchable encryption under different leakage profiles. Zhang {\em et al.} \cite{zhang16b} propose file-injection attacks to recover searchable keywords. Grubbs \cite{grubbs16} build attacks against {\em Mylar} \cite{popa14} that is a practical system with keyword search enabled.    This paper differs from the above works \cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18,zhang16b,grubbs16,pouliot16,cash15,islam12} by launching inference attacks against encrypted deduplication.   
+\section{推理攻击}  
 
-
-%Client-side deduplication leaks the side channel information that if
-%particular messages have already been stored. Harnik {\em et al.}
-%\cite{harnik10} and Halevi {\em et al.} \cite{halevi11} show how to exploit
-%the side channel leakage for different purposes, including creating covert
-%channels between clients and gaining access to unauthorized information.
-
-%Some studies \cite{stanek14,abadi13,bellare15} aim to achieve stronger security than the more practical schemes focused above. Stanek {\em et al.} \cite{stanek14} design a hybrid encryption scheme where unpopular messages are protected by semantically secure encryption for high security guarantee, while popular messages are protected by CE to enable deduplication. On the other hand, the scheme \cite{stanek14} builds on public-key primitive which is inefficient for encrypting large-size messages. Abadi {\em et al.} \cite{abadi13} construct two schemes for the messages whose distributions are publicly available. Their first scheme generates  random tags and ciphertexts to prevent frequency leakage, yet incurring expensive {\em equality test} for checking duplicates. Their second scheme produces deterministic ciphertexts, and exposes the frequencies of corresponding plaintexts. Interactive MLE \cite{bellare15} introduces interactions into encrypted deduplication, and strengthens the security of both correlated and parameter-dependent messages, yet it is impractical for the use of fully homomorphic encryption. On the contrary to these theoretical contributions \cite{stanek14, abadi13, bellare15}, this paper focuses on the applied aspect, and investigates the security vulnerabilities in practical deduplication.   
-
-
-% {\em Duplicate-faking attack} \cite{bellare13a} compromises the integrity of data by inconsistent tags. Specifically, an adversary can attach a maliciously-generated ciphertext to a faking tag $T$, so that the following legitimate messages that have the same tag of $T$ will be removed by deduplication. It can be addressed by server-side tag generation \cite{douceur02, bellare13b} or guarded decryption \cite{bellare13a}.
-
-% or introducing a random threshold to control client-side or server-side deduplication \cite{,harnik10}.   
-
-% Our second attack augments the prior work \cite{li17} with distribution-based ranking and achieves high inference rate and accuracy. We   
-%Some studies \cite{bosman16,gruss15,xiao13} investigate the side channels of memory deduplication, and this paper differs from them in considering deduplication in outsourced storage (e.g., cloud storage).
-
-% \paragraph{Property-revealing encryption:}
-% Encrypted deduplication leaks the underlying equality of plaintext chunks for detecting duplicates. A generalized {\em property-revealing encryption} \cite{bindschaedler17} has been studied for securing database storage \cite{curtmola06,bellare07,bellare09,boldyreva09,boldyreva11,popa11}. This paper differs from these works as it targets unstructured workloads. 
-
-% both theory \cite{curtmola06,bellare07,bellare09,boldyreva09,boldyreva11} and practice \cite{popa11}. 
-
-% illustrate the weakness of searchable encryption.
-
-
-% present reconstruction attacks by analyzing ; 
-
-
-% \cite{grubbs17,bindschaedler17,zhang16b,grubbs16,kellaris16,pouliot16,durak16,naveed15,cash15,islam12,lacharite18}  Regarding databases,    Regarding keyword search, ; further 
-
-% under different leakage settings;  
-
-
-
-
-% classical frequency analysis against cryptdb.    
-
-
-% -specific cryptographic primitives of deterministic encryption. 
-
-
-% applications.    
-
-
-% structured relational data or 
-
-% based on frequency analysis. 
-
-% % Frequency analysis has been applied in prior works \cite{grubbs17,bindschaedler17,zhang16b,grubbs16,kellaris16,pouliot16,durak16,naveed15,cash15,islam12,lacharite18} to construct inference attacks. Some attacks target , by classical frequency analysis \cite{naveed15}, exploring correlations or orderings of table columns, . 
-
-% while these approaches either target structured relational data \cite{grubbs17,bindschaedler17,kellaris16,durak16,naveed15,lacharite18} or aim to recover keywords of files \cite{zhang16b,grubbs16,pouliot16,cash15,islam12}, and cannot be applied to infer a huge number of chunks.  
-% % Traditional MLE (e.g., CE) builds on a {\em public} function (e.g., the hash function) to derive encryption keys, and it is susceptible to brute-force attack \cite{bellare13a} that can be used to . The weakness can be addressed by server-aided MLE \cite{bellare13b}.  
-%  % posted by the side-channel leakage in client-side and cross-user deduplication. 
-%  % This paper differs from these attacks in considering an adversary from the server side.  
-
-
+已有工作已经提出了几种针对加密数据库\citing{grubbs2017leakage,bindschaedler2018tao,kellaris2016generic,durak2016else,naveed2015inference,lacharite2018improved}和关键字搜索\citing{zhang2016all,grubbs2016breaking,pouliot2016shadow,cash2015leakage,islam2012access}的推理攻击方案。它们都利用确定性加密的性质来识别不同类型的泄漏。本文的研究内容与它们的不同之处在于专门研究了针对加密重复数据删除的频率分析推理攻击。

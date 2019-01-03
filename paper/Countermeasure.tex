@@ -1,60 +1,27 @@
 \chapter{应对频率分析攻击的对策讨论}
 \label{sec:Countermeasure}
 
-In this section, we discuss the advantages and disadvantages of possible countermeasures against the leakage channels exploited in this paper. Note that the countermeasures against size leakage are not enough for preventing our attacks, in which the size information is just optional.  
+在本章中，将讨论应对本文攻击方案使用的三种泄漏的对策及其优缺点。但在三中泄漏中，单纯的防范数据块大小信息泄漏并不足以使本文提出的攻击手段失效（大小信息的利用只是攻击用于进一步提高推理攻击准确性的可选条件）。
 
-\section{Against frequency leakage:}
-MinHash encryption \cite{qin17, li17} encrypts each plaintext with a key derived from the minimum chunk hash over a set of its adjacent chunks, and possibly maps identical plaintexts into  different ciphertexts. The rationale for defense is that MinHash encryption changes frequencies, and disturbs frequency ranking. 
- Note that MinHash encryption also prevents the frequency analysis attacks in this paper, because  we target deterministic encryption (e.g., MLE \cite{bellare13a}), while MinHash encryption is non-deterministic and changes the  frequency distribution of chunks. The disadvantage is that MinHash encryption degrades the storage saving by deduplication, since it breaks the one-to-one mapping between plaintexts and ciphertexts. In addition, MinHash encryption is not an active countermeasure, since its randomness essentially depends on the minimum chunk hashes in the target workloads.            
+\section{防止频率泄漏}
 
+MinHash加密\citing{qin2017design,li2017information}使用从一组相邻数据块上的最小块哈希导出的密钥加密该组内每个明文数据块，因此可能将相同的明文数据块加密映射到不同的密文数据块。防御频率信息泄漏的基本原理是通过MinHash加密改变各个密文数据块的频率，并由此扰乱不同数据块的频率排名。
 
+与此同时，MinHash加密还可以用于防止本文中的频率分析攻击。MinHash加密是非确定性的加密方法，使用该方法会改变数据块的频率分布，因此本文的的攻击目标是确定性加密（例如，MLE\citing{bellare2013message}）。但MinHash加密因为打破了明文数据块-密文数据块之间的一一映射关系，所以在加密重复数据删除中导致了存储效率的下降（重复数据删除所能节省的存储空间变小）。此外，因为MinHash加密的随机性主要取决于目标工作负载中的最小块哈希，所以其不是一种扰乱数据块频率的主动对策，在不同的工作负载中能实现的扰乱效果具有较大的差异。         
 
+最近的一项工作\citing{zuo2018mitigating}提出通过有计划的添加冗余（重复）的数据块来防止针对客户端加密重复数据删除的流量分析攻击。该方法\citing{zuo2018mitigating}在运作中会改变数据块的频率，因此可以用于防止频率分析攻击。与MinHash加密相比，该方法\citing{zuo2018mitigating}只是添加了重复的数据块，因此不会降低存储效率。但另一方面，它需要使用在特定的假设之下。首先它要求特定的数据块是重复的，其次它只适用于客户端重复数据删除。因此使用这种方法可能会引入额外的泄漏通道（参见\ref{sec:RelatedWork}）。
 
-% (rather than the chunk itself \cite{bellare13a}) over its adjacent chunks, so that some identical plaintext chunks can be encrypted into different ciphertext chunks. The rationale of defense is MinHash encryption {\em changes the frequencies of chunks} and leads to rank disturbances in classical frequency analysis. In addition, the nature of MinHash encryption is {\em non-deterministic}, and prevents the distribution-based ranking (see \S\ref{sec:distribution-attack-description}) that targets deterministic encryption. On the other hand, MinHash encryption is not an {\em active} countermeasure, since its defense effectiveness is dominated by workload characteristics (i.e., depending on the diversity of MinHash). It also degrades deduplication effectiveness due to breaking the one-to-one mapping between plaintexts and ciphertexts.
+现有工作提出了几个扩展的MLE实例基于强加密原语构建，以防止加密重复数据删除的频率泄漏，例如支持等式测试的随机加密\citing{abadi2013message}，混合加密\citing{stanek2014secure}，以及与完全同态加密的交互\citing{bellare2015interactive}。它们都提供了可证明的安全性，但它们如何在实践中实施和部署仍未有进一步的研究。
 
-A recent work \cite{zuo18} suggests intentionally adding duplicate chunks to prevent traffic analysis against client-side deduplication. The approach \cite{zuo18} can be applied to address the frequency analysis attacks, since it changes the frequencies of chunks. Compared with MinHash encryption, the countermeasure \cite{zuo18} does not degrade storage efficiency, since only duplicate chunks are added. On the other hand, it  requires the priori knowledge that if particular chunks are duplicate, and only suits the client-side deduplication, which possibly introduces additional leakage channels (see Section~\ref{sec:related}).  
+\section{防止顺序泄漏} 
 
-Several extended MLE instantiations build on strong cryptographic primitives to defend against the frequency leakage of encrypted deduplication, such as randomized encryption that supports equality testing \cite{abadi13}, hybrid encryption \cite{stanek14}, and interactions with fully homomorphic encryption \cite{bellare15}. They provide provable security, yet how they can be implemented and deployed in practice remains unexplored. 
+一个简单的对策是干扰数据块在重复数据删除处理中顺序。例如，加密重复数据删除可以在加密之前对明文数据块流进行额外的顺序扰动添加处理，以隐藏每个明文数据块的真实逻辑顺序。这种方法可以有效的防止基于分布的频率分析攻击（参见\ref{sec:DistributionAttack}），因为攻击者无法正确识别到数据块邻居信息。但它对于基于聚类的频率分析攻击（参见\ref{sec:ClusteringAttack}）并不是完全有效的。如果添加扰动仅在很小的范围内进行（例如，每个数据段中的明文数据块的顺序被添加扰动），则基于聚类的频率分析攻击方法仍然有效。
 
- 
+顺序扰乱策略的最大缺陷在于它破坏了数据块的局部性并且在大规模的重复数据删除中会导致性能的严重下降\citing{xia2011silo,zhu2008avoiding,lillibridge2009sparse}。
 
-% yet how they are implemented and deployed in practice remains unexplored. 
-% some random encryption schemes \cite{stanek14,bellare15,abadi13,lacharite18a}  address the frequency leakage of deterministic encryption. Other than the practical approaches \cite{qin17, li17, zuo18}, they provide provable security, yet building on computationally expensive primitives. 
-% % (see Section~\ref{sec:related}).   
+\section{防止大小泄漏}
 
-
-% are proposed to address frequency leakage from cryptography aspect, yet they are not readily implemented in practice .    
+正如已有的工作\citing{ritzdorf2016information}所建议的那样，加密重复数据删除可以在每个明文数据块种填充额外的数据来混淆这个明文数据块的实际大小。但是，这种填充方案的实现存在很大的难度，因为它需要在相同的明文数据块中添加相同的冗余数据；否则加密重复数据删除存储系统无法正常检测数据块是否重复。一种可能的解决方案建立在MLE\citing{keelveedhi2013dupless,bellare2013message}的范例之上，考虑将每个明文数据块的加密哈希作为计算种子，并使用它来生成可变大小的伪随机数据用于明文数据块的填充。与MLE一样，这种解决方案的代价是需要使用服务器辅助方法\citing{keelveedhi2013dupless}来抵御暴力攻击（参见\ref{sec:RelatedWork}）。   
 
 
-% Some studies \cite{stanek14,abadi13,bellare15} aim to achieve stronger security than the more practical schemes focused above. Stanek {\em et al.} \cite{stanek14} design a hybrid encryption scheme where unpopular messages are protected by semantically secure encryption for high security guarantee, while popular messages are protected by CE to enable deduplication. On the other hand, the scheme \cite{stanek14} builds on public-key primitive which is inefficient for encrypting large-size messages. Abadi {\em et al.} \cite{abadi13} construct two schemes for the messages whose distributions are publicly available. Their first scheme generates  random tags and ciphertexts to prevent frequency leakage, yet incurring expensive {\em equality test} for checking duplicates. Their second scheme produces deterministic ciphertexts, and exposes the frequencies of corresponding plaintexts. Interactive MLE \cite{bellare15} introduces interactions into encrypted deduplication, and strengthens the security of both correlated and parameter-dependent messages, yet it is impractical for the use of fully homomorphic encryption. On the contrary to these theoretical contributions \cite{stanek14, abadi13, bellare15}, this paper focuses on the applied aspect, and investigates the security vulnerabilities in practical deduplication.   
-
-\section{Against order leakage:}
-A simple countermeasure is to disturb the deduplication processing sequence of chunks. For example, we can operate an additional order-scrambling process on the stream of plaintexts before encryption, so as to hide the actual logical order of each plaintext. This prevents the distribution-based attack, because the adversary cannot identify neighboring information correctly. On the other hand, it is not always effective against the clustering-based attack. If scrambling  operates on just a small basis (e.g., the orders of plaintexts in each segment are scrambled), the clustering-based attack still works. 
-The disadvantage of the order-scrambling countermeasure is that it breaks chunk locality and leads to performance drop in large-scale deduplication \cite{xia11,zhu08,lillibridge09}. 
-
-
-% On the other hand, if we operate scrambling        
-% {\em scrambling}, which intentionally disturbs the deduplication processing sequence of chunks. 
-% operates the stream  before deduplication and disturbs the order of each plaintext. 
-% disturbs the orders of plaintexts before deduplication 
-% to scramble the orders of plaintexts. Specifically, the scrambling approach , and randomly changes the order of each plaintext.   
-% A countermeasure is to scramble the orders of chunks, so as to prevent adversary from learning the actual order of each chunk. One note is the scrambling countermeasure should be applied by taking similarity into account; otherwise, the adversary can exploit the property for inference attack (see \S\ref{sec:clustering-attack}). For example, applying scrambling in a small basis (e.g., within a segment) is not enough for preventing the clustering-based attack. On the other hand, large-scale scrambling breaks chunk locality completely, and leads to significant degradation of deduplication performance .
-
-\section{Against size leakage:}
-As suggested by prior work \cite{ritzdorf16}, we can pad each plaintext with additional data to obfuscate the actual size of this plaintext. However, we note that the padding scheme is not straightforward, since it requires to add identical redundancies to the same plaintexts; otherwise the storage system cannot detect duplicates for deduplication. One possible solution is to build on the paradigm of MLE \cite{bellare13b,bellare13a}. We compute the cryptographic hash of each plaintext as a seed, and use it to generate variable-size pseudorandom data to be padded with the  plaintext. Like MLE, this solution comes at the expense of server-aided approach \cite{bellare13b} to defend against brute-force attack (see Section~\ref{sec:related}).     
-
-
-% A countermeasure is to sacrifice storage efficiency and {\em pad each chunk with additional data}, which can obfuscate the original size of this chunk. The padding scheme is not straightforward, as it is required to {\em add identical redundant data to the same chunks}; otherwise, the server cannot detect duplicates for deduplication. One possible solution is based on the spirit of MLE \cite{bellare13b,bellare13a}. 
-% Specifically, we compute the cryptographic hash of each chunk as a seed, and use the seed to generate variable-size pseudorandom data to be padded with the corresponding chunk. Like MLE, this solution comes at the expense of server-aided approach \cite{bellare13b} to defend against brute-force attack (see \S\ref{sec:related}).    
-  
-  Instead of variable-size chunking, we can use fixed-size chunking to 
- generate equal-size chunks for deduplication. Since all chunks have the same size, the adversary cannot exploit size information to differentiate them.  Although fixed-size chunking suffers from boundary shift, it achieves almost the same storage saving of deduplication as variable-size chunking in VM disk images \cite{jin09}. Thus, we suggest applying fixed-size chunking in its favorable workloads to prevent size leakage.  
-
-      
-  
-  % make the leaked size information hard to be exploited for inference attack. It suffers from the shift of chunk boundaries and is less effective for majority workloads, while prior work \cite{jin09} shows fixed-size chunking achieves almost the same storage efficiency as variable-size chunking for VM disk images. 
-
-% , although does not address size leakage explicitly, can make the available size information hard to be exploited for inference attack. On the other hand, it sacrifices deduplication effectiveness in most of storage workloads due to the shift of chunk boundaries. 
-  
-
-
+另一种思路是使用固定大小的数据块分块方法来取代可变大小的数据块分块方法。在这种情况下，由于所有的数据块都具有相同的大小，因此攻击者无法利用大小信息来区分它们。虽然固定大小的分块会受到边界偏移的影响，但它在VM磁盘映像这一特定数据类型中实现了与可变大小数据块分块方案几乎相同的重复数据删除存储空间节省效果\citing{jin2009effectiveness}。 因此，本文建议在某些特定的加密重复数据删除工作负载（例如，VM磁盘映像）中应用固定大小的数据块分块方法，以防止数据块大小信息泄漏。

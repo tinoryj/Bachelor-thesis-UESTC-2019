@@ -1,32 +1,21 @@
-\chapter{结论}
+\chapter{结束语}
 \label{sec:Conclusion}
 
-加密重复数据删除应用确定性加密，并由此泄漏了明文的频率。本文重新审视了频率分析引起的安全漏洞，并证明加密重复数据删除更容易受到推理攻击。本文提出了两种新的频率分析攻击方法，它们在攻击者所具有的条件的不同假设下都能实现高推理率和高推理精度。本文用三个真实世界的数据集来验证评估这两种攻击方法，提出关于其性质的各种新观察，并进一步分析它们如何带来实际损害。本文还讨论了可能的对策的优缺点，以建议从业者安全地实施和部署加密的重复数据删除存储系统。
+\section{本文总结}
 
-Encrypted deduplication applies deterministic encryption, and leaks the frequencies of plaintexts. This paper revisits the security vulnerability  due to frequency analysis, and demonstrates that encrypted deduplication is even more vulnerable towards inference attacks. We propose two new frequency analysis attacks, both of which  achieve high inference rate and high inference precision, while under different assumptions of adversarial knowledge. We empirically evaluate our attacks with three real-world datasets, present a variety of new observations about their natures, and further analyze how they bring actual damages. We also discuss the advantages and disadvantages of possible countermeasures to advise practitioners for securely implementing and deploying encrypted deduplication storage systems. 
+加密重复数据删除应用确定性加密，并由此泄漏了明文的频率。本文重新审视了频率分析引起的安全漏洞，并证明加密重复数据删除更容易受到推理攻击。本文提出了两种新的频率分析攻击方法，它们在攻击者所具有的条件的不同假设下都能实现高推理率和高推理精度。本文用三个真实世界的数据集来验证评估这两种攻击方法，提出关于其性质的各种新观察，并进一步分析它们如何带来实际性的损害。本文还讨论了加密重复数据删除应对频率分析攻击的可能的对策及其相应的优缺点，以建议从业者安全地实现和部署加密重复数据删除存储系统。
      
-\section{后续工作}
+\section{下一步学习工作方向}
 
-我们为未来的工作提出三个方向。
- 
- 首先，我们将完整的旧备份视为辅助信息，如果攻击者仅对旧备份有部分了解，则不研究如何发起攻击。可能的是，我们仍然可以应用频率分析攻击从可用的部分备份中提取特征，并通过比较特征与目标备份中的特征来推断密文 - 明文对。一个方向是我们可以设计先进的推理攻击，这比在这个部分知识案例中直接应用我们的攻击更好吗？
+本文为未来的工作提出三个方向。
+
+
+首先，本文将完整的旧备份视为辅助信息，如果攻击者仅对旧备份的部分有了解（没有完整的旧备份用作辅助信息），则不研究攻击者如何发起攻击。可能的是，攻击者仍然可以应用频率分析攻击从可用的部分备份中提取特征，并通过比较特征与目标备份中的特征来推断密文数据块-明文数据块对。未来研究的第一个方向是设计更高级的推理攻击方法，并比较在前述的部分知识案例中新方法是否比直接应用本文提出的两种攻击更好。
       
- 其次，我们根据频率分析攻击的有效性调整频率分析攻击的参数，只有在攻击发生后才能学习。我们不研究如何预先从辅助信息中推导出最佳参数。未来的工作可能会做得更好
+      
+\par 其次，本文根据频率分析攻击的有效性调整频率分析攻击的参数，这种调整只有在攻击发生后才能学习。本文没有研究如何预先从辅助信息中推导出最佳参数。未来研究的第二个方向是在预先通过辅助信息推导最佳攻击参数方面尝试作出改进。
  
 
 
-第三，我们不对实际加密的重复数据删除存储系统实施攻击原型。另一个方向是部署我们的攻击设计和报告加密重复数据删除在实践中的漏洞。
-
-
- We pose three directions for future work. 
- 
- First, we consider a complete old backup as the auxiliary information, and do not study how to launch attack if the adversary only has partial knowledge about the old backup. Possibly, we can still apply the frequency analysis attacks to extract characteristics from the available partial backup, and infer ciphertext-plaintext pairs by comparing the characteristics with those in the target backup. One direction is can we design advanced inference attacks, which  perform better than directly applying our attacks in this partial knowledge case?  
-      
- Second, we adjust the parameters of the frequency analysis attacks based on their effectiveness, which can only be learnt after the attacks have happened. We do not study how to derive the optimal parameters from auxiliary information beforehand. Future work may do better. 
- 
-
-
-Third, we do not implement  attack prototypes against real-world encrypted deduplication storage systems. Another direction is to deploy our attack design and 
-report the vulnerability of encrypted deduplication in practice.
-
+第三，本文不对实际的加密重复数据删除存储系统实现攻击原型。未来研究的第三个方向是在实际系统中部署本文提出的攻击设计以及报告加密重复数据删除在实践中存在的漏洞。
 

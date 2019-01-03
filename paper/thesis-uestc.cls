@@ -658,8 +658,8 @@ UDC\textsuperscript{ 注1} \uline{\hspace{2.5in}} \\[12bp]
   \standardhead
   \pagenumbering{arabic}
   \setcounter{page}{1}
-  \chapter{绪\hspace{6pt}论}
-    \chaptermark{绪论}
+%  \chapter{绪\hspace{6pt}论}
+%    \chaptermark{绪论}
 }
 
 \newcommand{\thesisappendix}{
