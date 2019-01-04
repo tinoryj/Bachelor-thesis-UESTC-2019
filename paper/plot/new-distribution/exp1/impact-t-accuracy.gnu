@@ -1,7 +1,7 @@
 #!/usr/bin/gnuplot
 
 set terminal pdfcairo enhanced color font "Songti SC,24" 
-set output 'dis-impact-t-rate.pdf'
+set output 'dis-impact-t-accuracy.pdf'
 set style line 1 pt 2 lt 1 lw 3 lc rgb "#e41a1c" ps 1
 set style line 2 pt 3 lt 1 lw 3 lc rgb "#377eb8" ps 1
 set style line 3 pt 4 lt 1 lw 3 lc rgb "#4daf4a" ps 1
@@ -11,13 +11,16 @@ set style line 6 pt 7 lt 1 lw 3 lc rgb "#a65628" ps 1
 
 set autoscale
 
+
 set xtics nomirror
 set ytics nomirror
+set ytics 20
+set yrange [0:100]
 set xrange [0:2.1]
-set xlabel "t" 
-set ylabel "推理率 (%)" 
+set xlabel "t" #offset 0, 0.5
+set ylabel "推理精度 (%)" #offset 1.5, 0
 
-plot 'impact-t-rate' \
+plot 'impact-t-accuracy' \
 	using 1:($2)*100 w lp ls 1 notitle, \
 "" using 1:($3)*100 w lp ls 2 notitle, \
 "" using 1:($4)*100 w lp ls 3 notitle, \

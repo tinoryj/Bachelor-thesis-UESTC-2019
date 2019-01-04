@@ -4,7 +4,7 @@
 本文调研与使用以下数据集用于评估提出的两种攻击方法的效果，通过模拟攻击评估重复数据删除中信息泄漏带来的安全隐患（参见\ref{sec:background}）。
 
 \subsection{FSL数据集}
-
+\label{sec:fsl}
 \begin{table}[!hbt]
     \caption{FSL数据集特征}
 \small
@@ -36,7 +36,7 @@ User028 &  6.0-10.3 & 3.5-6.8 & 77GB/备份 $\times$ 14个\\
 此数据集由Stony Brook大学的文件系统和存储实验室（FSL）收集\cite{sun16，FSL14，sun18}。本文使用fslhomes快照进行实验，每个快照包括48位数据块哈希的有序列表，这些哈希是由平均大小为8KB的可变大小分块生成的，以及相应的元数据信息（例如，数据块大小、文件名、扩展名等）。本文从2013年1月22日到5月21日选择快照，并选择在整个持续时间内具有完整每日快照的六个用户（即User004，User007，User012，User013，User015和User028）用于后续实验分析。本文以周为单位选取备份数据，因此为每个用户选出14个每周完整备份。
 
 \subsection{VM数据集}
-
+\label{sec:vm}
 \begin{table}[!hbt]
     \caption{VM数据集特征}
 \small
@@ -76,7 +76,7 @@ User6 &  & 0.9-1.1 & 27GB/备份 $\times$ 13 个\\
 此数据集是从某大学2014年春季的编程课程中收集的。原始数据集包括为课程中注册的学生提供的大量VM镜像快照，每个快照的大小固定为10GB，每个快照中的数据用固定大小为4KB的数据块通过SHA-1算法计算得到的哈希的列表表示。本文使用6个用户（即User1-User6）的数据，每个用户的数据由13个每周备份组成。
 
 \subsection{MS数据集}
-
+\label{sec:ubc-ms}
 \begin{table}[!hbt]
     \caption{MS数据集特征}
 \small

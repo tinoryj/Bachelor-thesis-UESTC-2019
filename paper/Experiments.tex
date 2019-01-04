@@ -1,21 +1,28 @@
 \chapter{实验测试与分析}
 \label{sec:Experiment}
 
-在本章中，将给出基于真实世界数据集的评估结果，以证明本文针对加密重复数据删除提出的频率分析攻击方法的严重性与有效性。
+在本章中，将给出基于真实世界数据集的评估结果，以证明本文针对加密重复数据删除提出的频率分析攻击方法的有效性（对加密重复数据删除的威胁的严重性）。
 
-\section{Methodology}
+\section{实验方法}
 \label{sec:dataset}
 
-本文所使用的真实世界数据集不包数据的实际内容，因此我们模仿基于块哈希的对抗性知识。具体来说，我们在一些快照中使用有序的数据块哈希列表作为辅助信息$\mathbf{A}$和基本事实$\mathbf{M}$。为了模拟加密，我们在$\mathbf{M}$中的每个原始块散列（表示明文）上应用额外的散列函数，并将结果截断为特定于已使用数据集的约定位数。截断的结果模仿$\mathbf{C}$中的密文。对于每个推断的密文 - 明文对$(C,M)$，我们通过在$M$上应用相同的模拟加密并将结果与​​$C$进行比较来验证其正确性。请注意，基于聚类的攻击可以在段级别操作，并推断出密文 - 明文段对$(S_\mathbf{C},S_\mathbf {A})$。在这种情况下，我们检查$(S_\mathbf {C},S_\mathbf{A})$，检查$S_\mathbf{C}$中的每个密文是否完全映射到$S_\mathbf{A}$中的每个明文。
+本文所使用的真实世界数据集不包数据的实际内容，因此基于数据块哈希模拟攻击者所拥有的的对抗性知识。具体来说，本文将一些快照中的有序的数据块哈希列表作为辅助信息$\mathbf{A}$和原始明文信息$\mathbf{M}$。为了模拟加密过程，在$\mathbf{M}$中的每个原始数据块哈希（表示明文）上应用额外的哈希函数，并将结果截断为当前使用的数据集中约定的哈希值的长度。截断的结果用于模仿$\mathbf{C}$中的密文。对于每个推断的密文数据块-明文数据块对$(C,M)$，本文通过在$M$上应用相同的模拟加密并将结果与​​$C$进行比较来验证其正确性。特别的，基于聚类的频率分析攻击可以在数据段级别进行操作，断出密文数据段-明文数据段对$(S_\mathbf{C},S_\mathbf {A})$。在这种情况下，本文通过检查$S_\mathbf{C}$中的每个密文是否完全映射到$S_\mathbf{A}$中的每个明文来评估$(S_\mathbf {C},S_\mathbf{A})$的正确性。
+
+本文通过推理率和推理精度两个标准来衡量攻击的有效性（参见\ref{sec:ThreatModel}）。
 
 
-
-Our datasets do not contain actual content, so we mimic the adversarial knowledge based on chunk hashes. Specifically, we use the ordered lists of chunk hashes in some snapshots as the auxiliary information $\mathbf{A}$ and the ground truth $\mathbf{M}$, respectively. To simulate encryption, we apply an additional hash function over each original chunk hash (that represents a plaintext) in $\mathbf{M}$, and truncate the result into an agreed number of bits specific to the used dataset. The truncated result mimics a ciphertext in $\mathbf{C}$. For each inferred ciphertext-plaintext pair $(C, M)$, we verify its correctness by applying the same simulated encryption on $M$ and comparing the result with $C$. Note that the clustering-based attack can operate at the segment level, and infer the ciphertext-plaintext segment pair $(S_\mathbf{C}, S_\mathbf{A})$.  In this case, we check $(S_\mathbf{C}, S_\mathbf{A})$ by examining each ciphertext in $S_\mathbf{C}$ is exactly mapped from each plaintext in $S_\mathbf{A}$.
-
-We measure the severity of the attacks by the inference rate and the inference precision (see Section~\ref{sec:threat}). 
-
-\section{Results of Distribution-based Attack}
+\section{基于分布的攻击的实验结果}
 \label{sec:experiment-distribution}
+
+\subsection{实验1（参数的影响）}
+
+
+本节将评估参数$(u, r, t)$的变化在基于分布的频率分析攻击中带来的影响。实验使用FSL数据集（参见\ref{sec:fsl}）来进行评估。在实验中使用每个用户的第12周备份作为辅助信息来推断该用户相应的第14周备份中的原始明文数据。出于控制变量的需求，实验将在固定另两个参数的前提下对三个参数中的一个的变化进行测试和分析。
+
+
+\subsubsection{参数$u$的影响}
+
+首先，配置参数$t \rightarrow \infty$和$r = 0$来评估参数$u$变化的影响（在这种情况下，基于分发的攻击将退化到基于数据块局部性的的攻击\cite{li2017information}）。
 
 \begin{figure}[!htbp]
     \centering
@@ -28,6 +35,19 @@ We measure the severity of the attacks by the inference rate and the inference p
     \label{fig:distribution-impact-u}
 \end{figure}
 
+图\ref{fig:distribution-impact-u}显示了将参数$u$从2变为512时对推理率和推理精度带来的影响。对于推理率的结果，本实验的观察结果与已有的工作\cite{li2017information}相同。推理率首先随着$u$的增大而提高，这是因为频率分析攻击可以推断出更多的密文数据块-明文数据块对。推理率在达到最大值之后（例如，User004为13.9\%，User007为13.6\%，User012为1.4\%，User013为0.5\%，User015为0.7\%，User028为6.1\%）开始下降。其原因在于频率分析引入了大量的误报，这些误报会继续影响基于分布的攻击对每个数据块相邻邻居的推断。同时，部分特殊情况下的推理率约为0.0001\%，这意味着攻击只能推断出几个密文数据块-明文数据块对。
+
+已有的工作\cite{li2017information}不提供基于数据块局部性的攻击的推理精度信息，因此本文提出的两种推理攻击方法的实验的推理精度的部分不与其进行对比。实验中观察到除User028的数据在$u=2$的条件下没有引入任何误报外，针对所有用户备份数据的推理精度都处于相当低的水平（小于40\%）。随着$u$的增大，推理精度会略有下降。例如，当$u$从2增加到512时，User004的推理精度从30.7\%下降到12.8\%。
+    
+{\bf Observation (1) --} 
+
+A relatively larger $u$ increases the inference rate, yet it decreases the inference precision (i.e., more false positives are introduced). 
+
+
+\subsubsection{参数$r$的影响}
+
+Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and User015, and at 256 for User007, User012 and User028, respectively, in order to evaluate the impact of $r$ and $t$.  Our rationale is to increase the coverage of inferred ciphertext-plaintext pairs, while we use $r$ and $t$ to filter possibly false positives. 
+
 \begin{figure}[!htbp]
     \centering
     \begin{tabular}{p{.48\linewidth}p{.48\linewidth}}
@@ -39,7 +59,13 @@ We measure the severity of the attacks by the inference rate and the inference p
     \label{fig:distribution-impact-r}
 \end{figure}
 
-\begin{figure}[!htbp]
+We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure~\ref{fig:distribution-impact}(b) shows the results. We observe that the inference rates of majority users increase with $r$. For example, when we vary $r$ from 0 to 16, the inference rates grow from 9.5\% to 16.0\%, from 10.0\% to 13.0\%, from 0.5\% to 0.7\%, and from 4.7\% to 5.6\% for User004, User007, User013, and User028, respectively. The reason is that the distribution-based attack addresses disturbances to frequency ranking, and infer more correct ciphertext-plaintext  pairs. On the other hand, the inference rates decrease slightly from 1.3\% to 0.8\% and from 0.6\% to 0.4\% for User012 and User015, respectively. The reason is that they examine a large range of plaintexts and may introduce more false positives. In addition, the inference precisions for all users are  at a low level (e.g., less than 45\%), and have similar tendencies with corresponding inference rates.  
+
+{\bf Observation (2) --} {\em A larger $r$ provides more opportunities of identifying correct ciphertext-plaintext pairs, yet it also increases the probability of having false positives.}   
+
+\subsubsection{参数$t$的影响}
+
+\begin{figure}[!ht]
     \centering
     \begin{tabular}{p{.48\linewidth}p{.48\linewidth}}
         \multicolumn{2}{c}{\includegraphics[width=.7\textwidth]{legend-fsl-line.pdf}}  \\
@@ -49,21 +75,6 @@ We measure the severity of the attacks by the inference rate and the inference p
     \caption{基于分布的攻击实验1-参数$t$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$r = 10$）}
     \label{fig:distribution-impact-t}
 \end{figure}
-
-\subsection{Experiment 1 (Impact of parameters):}
-We evaluate the impact of the parameters $(u, r, t)$ in the distribution-based attack. We drive our evaluation using the FSL dataset, and use the 12th weekly backup of each user as the auxiliary information to infer original plaintexts in corresponding 14th weekly backup.  We configure $t \rightarrow \infty$ and $r$ = 0 to evaluate the impact of $u$ (in this case, the distribution-based attack reduces to the locality-based attack \cite{li17}). Our rationale is to avoid the disturbances by other parameters. 
-
-Figure~\ref{fig:distribution-impact}(a) shows the impact of $u$, when we vary $u$ from 2 to 512. Regarding inference rate, we have the same observation as the prior work \cite{li17}. Specifically, the inference rates first increase with $u$, since the attack can infer more ciphertext-plaintext pairs. After hitting the maximum values (e.g., 13.9\% for User004, 13.6\% for User007, 1.4\% for User012, 0.5\% for User013, 0.7\% for User015, and 6.1\% for User028), they decrease.  The reason is that the underlying frequency analysis introduces a large number of false positives that compromise the inferences over corresponding neighbors.    
-
-The prior work \cite{li17} does not report the inference precision about the attack. We observe that the inference precisions for all users are at a fairly low level (e.g., less than 40\%), except the case of $u = 2$ for User028 that does not introduce any false positives. On the other hand, the inference rate in the special case is about 0.0001\%, meaning that the attack only infers a few ciphertext-plaintext pairs. In addition, as $u$ increases,the inference precisions decrease slightly. For example, when $u$ increases from 2 to 512, the inference precision of User004 drops from 30.7\% to 12.8\%.      
-
-{\bf Observation (1) --} {\em A relatively larger $u$ increases the inference rate, yet it decreases the inference precision (i.e., more false positives are introduced). }
-
-Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and User015, and at 256 for User007, User012 and User028, respectively, in order to evaluate the impact of $r$ and $t$.  Our rationale is to increase the coverage of inferred ciphertext-plaintext pairs, while we use $r$ and $t$ to filter possibly false positives. 
-
-We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure~\ref{fig:distribution-impact}(b) shows the results. We observe that the inference rates of majority users increase with $r$. For example, when we vary $r$ from 0 to 16, the inference rates grow from 9.5\% to 16.0\%, from 10.0\% to 13.0\%, from 0.5\% to 0.7\%, and from 4.7\% to 5.6\% for User004, User007, User013, and User028, respectively. The reason is that the distribution-based attack addresses disturbances to frequency ranking, and infer more correct ciphertext-plaintext  pairs. On the other hand, the inference rates decrease slightly from 1.3\% to 0.8\% and from 0.6\% to 0.4\% for User012 and User015, respectively. The reason is that they examine a large range of plaintexts and may introduce more false positives. In addition, the inference precisions for all users are  at a low level (e.g., less than 45\%), and have similar tendencies with corresponding inference rates.  
-
-{\bf Observation (2) --} {\em A larger $r$ provides more opportunities of identifying correct ciphertext-plaintext pairs, yet it also increases the probability of having false positives.}   
 
 Then, we fix $r$ = 10 and evaluate the impact of $t$.  Figure~\ref{fig:distribution-impact}(c) shows the results. When $t$ is small (e.g., less than 0.5), we observe that the attack misjudges and filters a significant number of ciphertext-plaintext pairs, even they are correct. This introduces {\em false negatives} that reduce the inference rate. As $t$ increases, the number of false negatives decreases.  When $t$ = 1.5, the inference rates hit the maximum values at 21.2\%, 18.2\%, 10.4\%, 1.2\%, 1.2\%, and 13.5\% for User004, User007, User012, User013, User015, and User028, respectively. When $t$ further increases to 2, the corresponding inference rates drop to 20.5\%, 17.1\%, 8.3\%, 1.2\%, 1.0\%, and 11.2\%, respectively. The reason is that if $t$ is too large, it cannot filter false positives effectively. For the same reason, the inference precisions for all users decrease with $t$.  
 
