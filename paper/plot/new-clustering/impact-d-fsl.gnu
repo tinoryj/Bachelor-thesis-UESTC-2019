@@ -13,10 +13,10 @@ set style line 6 pt 7 lt 1 lw 4 lc rgb "#a65628" ps 2
 
 #set key spacing 1.70
 
-set size 0.6, 1.1
+set size 1.3, 0.6
 set multiplot layout 1,2 rowsfirst
 set size 0.6, 0.5
-set origin 0, 0.5
+set origin 0.7, 0
 set xtics nomirror
 set ytics nomirror
 set ytics 10

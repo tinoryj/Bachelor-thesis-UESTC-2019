@@ -15,7 +15,7 @@
 \label{sec:experiment-distribution}
 
 \subsection{实验1（参数的影响）}
-
+\label{sec:exp1}
 
 本节将评估参数$(u, r, t)$的变化在基于分布的频率分析攻击中带来的影响。实验使用FSL数据集（参见\ref{sec:fsl}）来进行评估。在实验中使用每个用户的第12周备份作为辅助信息来推断该用户相应的第14周备份中的原始明文数据。出于控制变量的需求，实验将在固定另两个参数的前提下对三个参数中的一个的变化进行测试和分析。
 
@@ -31,7 +31,7 @@
         \includegraphics[width=\linewidth]{dis-impact-u-rate.pdf} &
         \includegraphics[width=\linewidth]{dis-impact-u-accuracy.pdf}\\
     \end{tabular}
-    \caption{基于分布的攻击实验1-参数$u$的变化对推理结果的影响（$r = 0$；$t \rightarrow \infty$）}
+    \caption{基于分布的攻击实验1：参数$u$的变化对推理结果的影响（$r = 0$；$t \rightarrow \infty$）}
     \label{fig:distribution-impact-u}
 \end{figure}
 
@@ -39,14 +39,12 @@
 
 已有的工作\cite{li2017information}不提供基于数据块局部性的攻击的推理精度信息，因此本文提出的两种推理攻击方法的实验的推理精度的部分不与其进行对比。实验中观察到除User028的数据在$u=2$的条件下没有引入任何误报外，针对所有用户备份数据的推理精度都处于相当低的水平（小于40\%）。随着$u$的增大，推理精度会略有下降。例如，当$u$从2增加到512时，User004的推理精度从30.7\%下降到12.8\%。
     
-{\bf Observation (1) --} 
-
-A relatively larger $u$ increases the inference rate, yet it decreases the inference precision (i.e., more false positives are introduced). 
+\textbf{结论（1）：}相对较大的$u$提高了推理率，但降低了推理精度（即，引入了更多的误报）
 
 
 \subsubsection{参数$r$的影响}
 
-Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and User015, and at 256 for User007, User012 and User028, respectively, in order to evaluate the impact of $r$ and $t$.  Our rationale is to increase the coverage of inferred ciphertext-plaintext pairs, while we use $r$ and $t$ to filter possibly false positives. 
+然后，通过$u$变化的影响分析，本文选择增加推断的密文数据块-明文数据块对的覆盖范围，同时使用$r$和$t$来过滤可能的误报。因此，本文将User004，User013和User015的$u$设置为128，User007，User012和User028的设置分别为256，以评估$r$和$t$变化的影响。 
 
 \begin{figure}[!htbp]
     \centering
@@ -55,14 +53,14 @@ Informed by the impact of $u$, we set $u$ at 128 for User004, User013 and User01
         \includegraphics[width=\linewidth]{dis-impact-r-rate.pdf} &
         \includegraphics[width=\linewidth]{dis-impact-r-accuracy.pdf}\\
     \end{tabular}
-    \caption{基于分布的攻击实验1-参数$r$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$t \rightarrow \infty$）}
+    \caption{基于分布的攻击实验1：参数$r$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$t \rightarrow \infty$）}
     \label{fig:distribution-impact-r}
 \end{figure}
 
-We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure~\ref{fig:distribution-impact}(b) shows the results. We observe that the inference rates of majority users increase with $r$. For example, when we vary $r$ from 0 to 16, the inference rates grow from 9.5\% to 16.0\%, from 10.0\% to 13.0\%, from 0.5\% to 0.7\%, and from 4.7\% to 5.6\% for User004, User007, User013, and User028, respectively. The reason is that the distribution-based attack addresses disturbances to frequency ranking, and infer more correct ciphertext-plaintext  pairs. On the other hand, the inference rates decrease slightly from 1.3\% to 0.8\% and from 0.6\% to 0.4\% for User012 and User015, respectively. The reason is that they examine a large range of plaintexts and may introduce more false positives. In addition, the inference precisions for all users are  at a low level (e.g., less than 45\%), and have similar tendencies with corresponding inference rates.  
+本实验中首先令$t\rightarrow \infty$，然后评估$r$变化带来的影响。图\ref{fig:distribution-impact-r}展示了参数$r$变化的实验结果。 实验观察到大多数用户的推理率随着$r$而增加。例如，当将$r$从0变为16时，User004推理率从9.5\%增加到16.0\%，User007从10.0\%增加到13.0\%，User013从0.5\%增加到0.7\%，User028从4.7\%增加到5.6\%。发生这种现象的原因是基于分布的攻击减少了直接频率排序的干扰，并推断出更多正确的密文数据块-明文数据块对。另一方面，对于User012和User015，推理率分别从1.3\%降至0.8\%，从0.6\%降至0.4\%。原因是随着检查的扩大，可能引入更多的误报。同时，所有用户的推断精度均处于低水平（小于45％），并且具有与其相应的推断率类似的变化趋势。
 
-{\bf Observation (2) --} {\em A larger $r$ provides more opportunities of identifying correct ciphertext-plaintext pairs, yet it also increases the probability of having false positives.}   
 
+\textbf{结论（2）：}较大的$r$提供了识别正确的密文数据块-明文数据块对的更多机会，但也增加了发生误报的概率。
 \subsubsection{参数$t$的影响}
 
 \begin{figure}[!ht]
@@ -72,40 +70,52 @@ We first configure $t \rightarrow \infty$ and evaluate the impact of $r$. Figure
         \includegraphics[width=\linewidth]{dis-impact-t-rate.pdf} &
         \includegraphics[width=\linewidth]{dis-impact-t-accuracy.pdf}\\
     \end{tabular}
-    \caption{基于分布的攻击实验1-参数$t$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$r = 10$）}
+    \caption{基于分布的攻击实验1：参数$t$的变化对推理结果的影响（User004、User013和User015中$u = 128$，User007、User012和User028中$u = 256$；$r = 10$）}
     \label{fig:distribution-impact-t}
 \end{figure}
 
-Then, we fix $r$ = 10 and evaluate the impact of $t$.  Figure~\ref{fig:distribution-impact}(c) shows the results. When $t$ is small (e.g., less than 0.5), we observe that the attack misjudges and filters a significant number of ciphertext-plaintext pairs, even they are correct. This introduces {\em false negatives} that reduce the inference rate. As $t$ increases, the number of false negatives decreases.  When $t$ = 1.5, the inference rates hit the maximum values at 21.2\%, 18.2\%, 10.4\%, 1.2\%, 1.2\%, and 13.5\% for User004, User007, User012, User013, User015, and User028, respectively. When $t$ further increases to 2, the corresponding inference rates drop to 20.5\%, 17.1\%, 8.3\%, 1.2\%, 1.0\%, and 11.2\%, respectively. The reason is that if $t$ is too large, it cannot filter false positives effectively. For the same reason, the inference precisions for all users decrease with $t$.  
+最后，设定$r=10$来评估参数$t$变化的影响。 图\ref{fig:distribution-impact-t}展示了参数$t$变化的实验结果果。当$t$很小（例如，小于0.5）时，实验观察到攻击误判并过滤了大量的密文数据块-明文数据块对，即使它们是正确的（即，引入了降低推理率的假阳性结果）。随着$t$的增加，假阳性的结果数量减少。当$t= 1.5$时，对于User004，User007，User012，User013，User015和User028，推理率分别达到最大值21.2\%，18.2\%，10.4\%，1.2\%，1.2\%和13.5\%。 当$t$进一步增大到2时，相应的推理率分别降至20.5\%，17.1\%，8.3\%，1.2\%，1.0\%和11.2\%。其原因是如果$t$过大，攻击就无法有效地过滤误报。因此，所有用户数据的推理精度都会随着$t$的增大而下降。
 
-{\bf Observation (3) --} {\em A smaller $t$ filters a large fraction of false
-positives, yet it introduces more false negatives.}   
+\textbf{结论（3）：}较小的$t$过滤了大部分频率分析带来的误报，但它引入了更多的假阳性结果，导致了推理率的下降。
 
+\subsection{实验2（与已有工作的对比）}
+\label{sec:exp2}
+本文将基于分布的攻击的有效性与基于数据块局部性的攻击的有效性进行比较\cite{li2017information}。除了使用实验1（参见\ref{sec:exp1}）中采用的FSL数据集之外，本文还加入MS数据集（参见\ref{sec:ubc-ms}）用于进行跨数据集的验证与评估。在MS数据集中，对于每个系统类别，一次选择两个快照，使用其中一个来推断另一个，以此评估平均的推理率和推理精度。
 
-\subsection{Experiment 2 (Comparison with prior attack):}
-We compare the severity of the distribution-based attack with that of the locality-based attack \cite{li17}. In addition to using the FSL dataset like Experiment~1, we include the MS dataset for cross-dataset validation. Specifically, for each MS category, we choose two snapshots at a time, use one to infer the other, and evaluate the average inference rate and precision. 
-
-We consider the following attack instances for comparison. 
+本文考虑采用以下攻击实例来进行比较。
 
 \begin{itemize}[leftmargin=*]
-\item 
-$\tt Baseline$: We re-implement the locality-based attack based on the parameter configuration suggested in \cite{li17}. Specifically, it infers 5 most frequent ciphertext-plaintext pairs in the first invocation (i.e., to initialize a set of ciphertext-plaintext pairs for iteration) of frequency analysis, and 30 in each following invocation (i.e., to iteratively infer ciphertext-plaintext pairs from neighbors).  
-\item 
-$\tt Distribution$ and $\tt Distribution^S$: We consider two attack instances of the distribution-based attack, denoted by $\tt Distribution^S$ and ${\tt Distribution}$, which operate with and without size information, respectively (i.e., the superscript $\tt S$ indicates that the attack instance operates with size information). We configure $\tt Distribution^S$ and ${\tt Distribution}$ under the same configuration of  ${\tt Baseline}$. In addition, we choose $r$ and $t$ in both  $\tt Distribution^S$ and ${\tt Distribution}$ in the following way: for the FSL dataset, we fix $r$ = 10 for all users, and individually set $t$ = 1.5, 1.2, 1, 1, 0.7, and 0.9 for User004, User007, User012, User013, User015, and User028, respectively; for the MS dataset, we also fix $r$ = 10 for all categories, and set $t$ = 2 for Win7 and Serv-08, and $t$ = 1.6 for Vista-U, Serv-03, and Vista-B, respectively. This is informed by our tests for optimal configurations of the datasets.   
-\item 
-$\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$: We consider two additional distribution-based attack instances, denoted by $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$, which apply the same configurations for $r$ and $t$ as with $\tt Distribution$ and $\tt Distribution^S$, and further use larger $u$ to increase the coverage of inferred ciphertext-plaintext pairs.  Specifically, we configure $u$ in $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$ in the following way:  for the FSL dataset, we apply the same configuration of $u$ in Experiment~1; for the MS dataset, we set $u$ = 128 for Win7, and $u$ = 30 for Serv-03, Serv-08, Vista-B, and Vista-U. 
+\item \textbf{$\tt Baseline$：}
 
+实验根据已有工作\cite{li2017information}中建议的参数配置实现基于数据块局部性的攻击。具体来说，它在频率分析的第一次调用中推断出5个出现频率最高的的密文数据块-明文数据块对（即，初始化一组用于迭代的密文数据块-明文数据块对），并且在每次后续调用中根据已有数据块对的邻居推断30个新的数据块对（即，迭代地推断密文数据块-明文数据块对）。
+
+\item \textbf{$\tt Distribution$和$\tt Distribution^S$：} 
+
+考虑两个基于分布的攻击的攻击实例，分别由$\tt Distribution$和$\tt Distribution^S$表示，它们分别使用和不使用大小信息作为辅助信息（即上标$\tt S$表示攻击实例使用大小信息进行操作）。实验在与${\tt Baseline}$相同参数的条件下配置$\tt Distribution^S$和${\tt Distribution}$。 此外，实验通过以下方式在$\tt Distribution^S$和${\tt Distribution}$中选择参数$r$和$t$的取值：对于FSL数据集，我们为所有用户设定$r = 10$，并分别为User004、User007、User012、User013、User015和User028设置参数$t$ = 1.5、1.2、1、1、0.7和0.9；对于MS数据集，实验继续为所有类别设置参数$r = 10$，为Win7和Serv-08设置参数$t = 2$，为Vista-U、Serv-03和Vista-B设置参数$t = 1.6$。以上数据是通过按照实验1（参见\ref{sec:exp1}）的方法对数据集的最佳配置的测试得出的。 
+\item \textbf{$\tt Distribution$-$\tt o$和$\tt Distribution^S$-$\tt o$：}
+
+实验考虑另外两个基于分布的攻击的实例，用$\tt Distribution$-$\tt o$和$\tt Distribution^S$-$\tt o$表示，对于$r$和$t$应用与$\tt Distribution$和$\tt Distribution^S$相同的配置，但进一步使用更大的参数$u$增加推断的密文数据块-明文数据块对的覆盖范围。具体来说，实验通过以下方式在$\tt Distribution$-$\tt o$和$\tt Distribution^S$-$\tt o$中配置参数$u$：对于FSL数据集，参数$u$的选择与实验1（参见\ref{sec:exp1}）相同；对于MS数据集，实验为Win7数据设置$u = 128$，为Serv-03、Serv-08、Vista-B和Vista-U设置$u  = 30$。 
 \end{itemize}
 
-\begin{figure*}[t]
+\begin{figure*}[!htbp]
     \centering
     \begin{tabular}{c}
         \includegraphics[width=.7\textwidth]{pic/legend-fsl-bar.pdf}\\
         \includegraphics[width=.7\textwidth]{pic/distribution-comparison-fsl.pdf} 
     \end{tabular}
-    \caption{Experiment 2 FSL dataset  (Comparison with prior attack): comparison of attack severity for distribution-based attack and locality-based attack.}
-    \label{fig:distribution-comparison}
+    \caption{基于分布的攻击实验2（与已有工作的对比）：比较基于分布的攻击和基于数据块局部性的攻击的有效性（FSL数据集）。}
+    \label{fig:distribution-comparison-fsl}
 \end{figure*}
+
+图\ref{fig:distribution-comparison-fsl}给出了基于FSL数据集的上述5种实例的比较结果。实验观察到，在几乎所有情况下，基于分布的攻击的不同实例都优于基于数据块局部性的攻击。例如，对于User028，基于分布的攻击的最低推理率是11.4\%，推理精度为84.1\%（$\tt Distribution$）；此时$\tt Baseline$相应的推理率仅为1.2\%，推理精度仅为1.7\%。这意味着在这种情况下，基于分布的攻击可以将假阳性的数量减少82.4\%。
+
+\textbf{结论（4）：}基于分布的攻击显着提高了推理精度，同时实现了比基于数据块局部性的攻击更高的推理率。 
+
+$\tt Distribution^S$和$\tt Distribution^S$-$\tt o$相较于$\tt Distribution$和$\tt Distribution$-$\tt o$拥有更高的推理精度，这因为它们进一步通过数据块大小信息过滤了误报。例如，对于User004，$\tt Distribution^S$和$\tt Distribution^S$-$\tt o$相较于$\tt Distribution$和$\tt Distribution$-$\tt o$将误报分别从35.2\%减少到1.7\%，从35.3\%减少到2.2\%。然而，在同样的情况下，实验观察到$\tt Distribution$ and $\tt Distribution$-$\tt o$的推理率分别为20.0\%和21.2\%，相较于$\tt Distribution^S$和$\tt Distribution^S$-$\tt o$分别高出2.0\%和0.4\%。其原因是$\tt Distribution$和$\tt Distribution$-$\tt o$推断出了来自不正确的密文数据块-明文数据块对的邻居中的少量正确结果。换句话说，虽然$(C, M)$是不正确的密文数据块-明文数据块对，但$C$的邻居可能以很小的概率对应于$M$的邻居。即使在这种情况下，所有基于分布的攻击实例都比基于数据块局部性的攻击实例效果更佳。具体来说，$\tt Baseline$的推理率仅为15.2\%，比基于分布的攻击的最佳情况低6.0\%，最差情况低2.8\%。  
+
+\textbf{结论（5）：}过滤不正确的推理结果可以提高推理精度，但会降低推理的密文数据块-明文数据块对的覆盖范围，并可能降低推理率。
+
+我们进一步观察到，虽然$\tt Distribution$-$\tt o$和$\tt Distribution^S$-$\tt o$构建在更大的参数$u$上，但它们的推理率仅略高于$\tt Distribution$和$\tt Distribution^S$（分别高为0.4\%和0.9\%）。 原因是基于分布的攻击仅通过已推理出数据块对的邻居进行迭代推理。参数$u$的进一步增大只会在结果中添加少量新的正确密文数据块-明文数据块对。
 
 \begin{figure*}[t]
     \centering
@@ -113,192 +123,67 @@ $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$: We consider two add
         \includegraphics[width=.7\textwidth]{pic/legend-fsl-bar.pdf}\\
         \includegraphics[width=.7\textwidth]{pic/distribution-comparison-ms.pdf}\\
     \end{tabular}
-    \caption{Experiment 2 MS dataset (Comparison with prior attack): comparison of attack severity for distribution-based attack and locality-based attack.}
-    \label{fig:distribution-comparison}
+    \caption{基于分布的攻击实验2（与已有工作的对比）：比较基于分布的攻击和基于数据块局部性的攻击的有效性（MS数据集）。}
+    \label{fig:distribution-comparison-ms}
 \end{figure*}
 
 
-Figure~\ref{fig:distribution-comparison}(a) shows the
-comparison results of the FSL dataset. We observe that different instances of
-the distribution-based attack outperform the locality-based attack in almost
-all cases. For example, regarding User028, the lowest inference rate of the
-distribution-based attack is 11.4\%, with the precision of 84.1\% (due to $\tt
-Distribution$), while the corresponding inference rate and precision of
-$\tt Baseline$ are only 1.2\% and 1.7\%, respectively; this implies that the distribution-based attack reduces the number of false postives by 82.4\% in this case.   
+图\ref{fig:distribution-comparison-ms}给出了基于MS数据集的上述5种实例的比较结果。基于数据块局部性的攻击和基于分布的攻击在大多数MS数据集的类别（Win7除外）中具有高推理率和精度。可能的原因是MS数据集中的快照高度相关（例如，数据块总数的方差很小，如表\ref{tab:MS-dataset}所示）。实验观察到基于分布的攻击仍然优于基于数据块局部性的攻击。例如，在Vista-U中，基于分布的攻击的所有推理的推理率和推理精度分别高于24.1\%和96.4\%，而$\tt Baseline$的推断率和分辨率分别为21.7\%和87.1\%。
 
-{\bf Observation (4) --} {\em The distribution-based attack significantly
-increases the inference precision, while achieving a higher inference rate than
-the locality-based attack.} 
+实验中对于数据集中Win7类别，基于分布的攻击和基于数据块局部性的攻击的推断率都很低（小于0.01％）。其原因是Win7包含大量具有唯一性的数据块（大约超过98.8\%，如表\ref{tab:MS-dataset}所示），导致了攻击效果表现不佳。
 
-$\tt Distribution^S$ and $\tt Distribution^S$-$\tt o$ have higher inference
-precisions than $\tt Distribution$ and $\tt Distribution$-$\tt o$,
-respectively, since they further filter false positives by size information.
-For example, for User004, $\tt Distribution^S$ and $\tt Distribution^S$-$\tt o$  reduce the fraction of false positives in  $\tt Distribution$ and $\tt Distribution$-$\tt o$ from 35.2\% to 1.7\% and from 35.3\% to 2.2\%, respectively. However, in the same case,    
- we observe that the inference rates of $\tt Distribution$ and $\tt Distribution$-$\tt o$ are 20.0\% and 21.2\%, slightly higher than those of  
-$\tt Distribution^S$ and
-$\tt Distribution^S$-$\tt o$ by 2.0\% and
-0.4\%, respectively. The reason is that $\tt Distribution$ and $\tt
-Distribution$-$\tt o$ infer a small number of correct results from the
-neighbors of incorrect ciphertext-plaintext pairs. In other words,  although
-$(C, M)$ is an incorrect ciphertext-plaintext pair, the neighbors of $C$ may
-correspond to those of $M$ with a small probability. Even in this case, all distribution-based attack instances are more severe than the locality-based attack instance. Specifically, the inference rate of $\tt Baseline$ is only 15.2\%, lower than those of the best and the worst distribution-based attack instances by 6.0\% and 2.8\%, respectively. 
+\subsection{实验3（攻击效果）} 
 
-% For the same reason, $\tt Baseline$ has higher inference rate than $\tt Distribution^S$ in User013.   
+实验考虑长期备份模式，并使用FSL数据集检查基于分布的攻击的有效性。具体来说，实验选择每个用户的第$i$个FSL每周备份作为辅助信息，以推断相应的第$(i+w)$个FSL每周备份中的原始明文。显然，$w$越小，辅助信息和目标备份之间的相关性就越高。与实验2（参见\ref{sec:exp2}）配置两个基于分布的攻击实例$\tt Distribution$-$\tt o$和$\tt Distribution^S$-$\tt o$，并评估它们的推理率和推理精度（针对每个用户的所有可用的$i$）。
 
-{\bf Observation (5) --} {\em Filtering incorrect inference results improves
-the inference precision, yet it degrades the coverage of inferred
-ciphertext-plaintext pairs and possibly decreases the inference rate.
-} 
-
-We further observe that although $\tt Distribution$-$\tt o$ and $\tt
-Distribution^S$-$\tt o$ build on larger $u$, their inference rates are just
-slightly higher than those of $\tt Distribution$ and $\tt Distribution^S$ by
-0.4\% and 0.9\%, respectively. The reason is that the distribution-based
-attack iterates inference just through neighbors, and has a bounded coverage
-of inferred ciphertext-plaintext pairs. The further increase of $u$ only adds
-a small number of new correct  ciphertext-plaintext pairs into results. 
-
-Figure~\ref{fig:distribution-comparison}(b) shows the
-results of the MS dataset. Both locality-based and distribution-based attacks
-have high inference rates and precisions in most MS categories (except Win7).
-The possible reason is that MS snapshots are highly correlated (e.g., the
-variance of the total number of chunks is small, as shown in
-Table~\ref{tab:dataset}).  We observe that the distribution-based attack still
-outperforms the locality-based attack. For example, in Vista-U, the inference
-rates and precisions of all inferences of the distribution-based attack are
-above 24.1\% and 96.4\%, while those of $\tt Baseline$ are 21.7\% and 87.1\%,
-respectively. 
-
-Note that both  distribution-based and  locality-based attacks have low
-inference rates (e.g., less than 0.01\%) in the Win7 category. The reason is
- that Win7 includes a large fraction (e.g., more than 98.8\%, as shown in
-Table~\ref{tab:dataset}) of unique chunks, which cannot be correctly
-inferred by the frequency analysis attacks. 
-
-% We do not include Win7  in the comparison, since all attack instances have low effectiveness. We observe all attacks have higher severity than those in the FSL dataset.   
-
-
-
-\begin{figure*}[t]
-     \centering
+\begin{figure*}[!htbp]
+    \centering
     \centering
     \begin{tabular}{c}
-        \includegraphics[width=.35\textwidth]{pic/legend-effectiveness.pdf}\\
-        \includegraphics[width=.7\textwidth]{pic/distribution-effectiveness-wo-size.pdf}
+        \includegraphics[width=.35\textwidth]{legend-effectiveness.pdf}\\
+        \includegraphics[width=.7\textwidth]{distribution-effectiveness-wo-size.pdf}
     \end{tabular}
-	\caption{Experiment 3 Distribution-based attack without size information  (Attack effectiveness): severity of distribution-based attack in FSL dataset.}
-	\label{fig:experiment-distribution-effectiveness}
+	\caption{实验3（攻击效果）：没有大小信息辅助的基于分布的攻击在FSL数据集中的有效性。}
+	\label{fig:experiment-distribution-effectiveness-wo}
 \end{figure*}
 
-\begin{figure*}[t]
-     \centering
+图\ref{fig:experiment-distribution-effectiveness-wo}给出了$\tt Distribution$-$\tt o$的实验结果。基于分布的攻击在用户之间具有不同的推理率和推理精度。例如，在类似User004这样的有利情况下，它实现了推理率24.8\%、推理精度67.3\%（$w = 1$）；推理率24.5\%、推理精度67.0\%（$w = 2$）；推理率24.0\%、推理精度66.5\%（$w = 3$）。在类似User015这样的非有利情况下，基于分布的攻击的推理率仅有0.3\%。可能的原因是User015的备份数据具有较低的数据块局部性。
+
+此外，实验观察到辅助信息的相关性（即$w$）对基于分布的攻击的有效性影响较低。例如，当$w$从1增加到3时，它仅导致推理率（下降小于1.4\%）和精度（下降小于5.6\%）的有限下降。其原因是基于分布的攻击解决了频率排名中的干扰并保留了攻击的有效性。
+
+\textbf{结论（6）：}基于分布的攻击可以在存在松散相关的辅助信息的帮助下有效控制攻击有效性的下降程度。
+
+\begin{figure*}[!htbp]
+    \centering
     \centering
     \begin{tabular}{c}
         \includegraphics[width=.35\textwidth]{pic/legend-effectiveness.pdf}\\
         \includegraphics[width=.7\textwidth]{pic/distribution-effectiveness-w-size.pdf}
     \end{tabular}
-	\caption{Experiment 3 Distribution-based attack with size information (Attack effectiveness): severity of distribution-based attack in FSL dataset.}
-	\label{fig:experiment-distribution-effectiveness}
+	\caption{实验3（攻击效果）：有大小信息辅助的基于分布的攻击在FSL数据集中的有效性。}
+	\label{fig:experiment-distribution-effectiveness-w}
 \end{figure*}
 
+图\ref{fig:experiment-distribution-effectiveness-w}给出了$\tt Distribution^S$-$\tt o$的实验结果。实验观察到它具有与$\tt Distribution$-$\tt o$相似的推理率，同时拥有更高的推理精度。例如，对于所有用户的平均推断精度分别为93.1\%（$w = 1$）、92.8\%（$w = 2$）和92.4\%（$w = 3$）。         
 
-
-\subsection{Experiment 3 (Attack effectiveness):} We consider a long-term
-backup scenario and examine the effectiveness of the distribution-based attack
-with the FSL dataset. Specifically, we choose the $i$th FSL weekly backup of
-each user as the auxiliary information to infer original plaintexts in the corresponding $(i+w)$th FSL
-weekly backup. Clearly, the smaller $w$ is, the higher correlation between the
-auxiliary information and the target backup will be.  We configure the two  
-distribution-based attack instances $\tt Distribution$-$\tt o$ and $\tt Distribution^S$-$\tt o$
-like Experiment~2, and evaluate their inference rates and inference precisions that
-are averaged for all available $i$ for each user. 
-
-Figure~\ref{fig:experiment-distribution-effectiveness}(a) shows the results. The
-distribution-based attack has varying inference rate and precision  across
-users. For example, in the favorable case like User004, it achieves the
-highest inference rates of 24.8\%, 24.5\%, and 24.0\% with the precisions of
-67.3\%, 67.0\%, and 66.5\% for $w$ = 1, 2, and 3, respectively; in the
-non-favorable case like User015, the inference rate of the distribution-based
-attack is only around 0.3\%. The possible reason is that the backup data from
-User015 has low chunk locality. 
-
-In addition, we observe that the correlation (i.e., $w$) of the auxiliary
-information has low impact on the effectiveness of the distribution-based
-attack.  For example, when $w$ increases from 1 to 3, it only leads to limited
-degradations on inference rate (e.g., less than 1.4\%) and precision (e.g.,
-less than 5.6\%). The reason is that the distribution-based attack addresses
-disturbances to frequency ranking and preserves attack effectiveness.  
-
-{\bf Observation (6) --} {\em The distribution-based attack can limit the
-degradation of attack effectiveness in the presence of loosely correlated
-auxiliary information.} 
-
-% We also use the instance in Experiment 2 to evaluate the effectiveness of the distribution-based attack that operates with
- % size information. 
- Figure~\ref{fig:experiment-distribution-effectiveness}(b) shows the results of $\tt Distribution^S$-$\tt o$. We observe that it has similar inference rate with $\tt Distribution$-$\tt o$,  
- while achieving much higher precision. For example, the average inference precision of all users are 93.1\%, 92.8\%, and 92.4\% for $w$ = 1, 2, and 3, respectively.  
-
-% Figure~\ref{fig:experiment-distribution-severity-ms} shows the attack results of the MS dataset. The distribution-based attack achieves high severity. For example, it can infer 24.0\% of unique chunks in Vista-U with a precision of 96.2\%.    
-
-% Although there is l          
-
-\section{Results of Clustering-based Attack}
+\section{基于聚类的攻击的实验结果}
 \label{sec:experiment-clustering}
 
+\subsection{实验4（参数的影响）} 
+
+实验首先评估参数$k$的影响，该参数定义了凝聚法层次聚类中组合两个最近聚类的距离上限。本实验使用FSL和VM数据集来研究$k$如何影响攻击中的基础聚类方案。具体来说，分别对每个选出的FSL和VM用户数据的最后一次备份应用分段方法，并生成固定大小为4MB的数据段。
+
+聚类方案旨在将类似的密文数据段聚合到同一个聚类中，这一过程不会损害每个密文数据段中的数据块的机密性。为了量化其影响，将聚类的结果与实际分类方法的结果进行比较（实际分类方法通过最小数据块哈希直接对分段进行分类）。假设我们分别通过实际分类方法生成$m$个数据段的集合，并且通过聚类方案生成$\widetilde{m}$个数据段的集合。通过$\frac{{\sf abs}(m-\widetilde{m})}{m}$（其中${\sf abs}(m-\widetilde{m})$返回$m-\widetilde{m}$的绝对值）衡量聚类形成的集合与实际分类形成的集合的相似程度。记集合所有数据段都相同（具有相同的最小数据块哈希）的聚类的数量为$\hat{m}$。此外，实验还考虑了聚类正确性，由$\frac{\hat{m}}{\widetilde{m}}$进行评估，它量化了对相似数据段的聚类方案的精确程度。
 
 
+Figure~7(a) shows the results of the FSL dataset, where we consider four FSL users (e.g., User004, User007, User015 and User028) for saving evaluation time. The clustering closeness first increases with $k$, since the number (i.e., $\widetilde{m}$) of clusters decreases and approximates $m$. When $k$ increases further, the number of clusters drops away from $m$, and leads to the increase of clustering closeness.  In addition, we observe that the clustering correctness gradually decreases with $k$, because some of non-similar segments (i.e., their minimum chunk hashes are different) are aggregated into the same cluster. Both results suggest that we can configure an appropriate $k$ to balance the closeness and correctness of clustering. For example, when we set $k$ = 0.65 for User015, the corresponding closeness and correctness are 1.0\% and 94.2\%, respectively. This implies that the results of the clustering scheme  highly approximates those of real classification.             
 
-\subsection{Experiment 4 (Impact of parameter):} We first evaluate the impact
-of the parameter $k$, which defines the upper bound distance
-in combining the closest clusters.  We use both the FSL and the VM datasets to
-study how $k$ affects the underlying clustering scheme in the attack.
-Specifically, we apply segmentation on the last backup of each considered FSL
-and VM user, respectively, and generate the segments that have a fixed size of
-4MB. 
+{\bf Observation (7) --} {\em By configuring an appropriate $k$ for clustering, we  approximate the results of  classifying segments, without the knowledge of  minimum chunk hash in each segment.}   
 
-The clustering scheme aims to aggregate similar ciphertext segments into the
-same cluster, without compromising the confidentiality of chunks in each
-ciphertext segment.  To quantify its effect, we compare the results of
-clustering with those of a {\em real} classification approach, which directly
-classifies segments by their minimum chunk hash.  Suppose we generate $m$ real
-classes of segments by classification, and $\widetilde{m}$ clusters by the
-clustering scheme, respectively.  We consider {\em clustering closeness},
-evaluated by $\frac{{\sf abs}(m-\widetilde{m})}{m}$ (where 
-${\sf abs}(m-\widetilde{m})$ returns the absolute value of $m-\widetilde{m}$),
-which quantifies how the  number of clusters approximates that of real
-classes. In addition, let $\hat{m}$ be the number of clusters, in which all
-segments are similar (i.e., have the same minimum chunk hash). We also
-consider {\em clustering correctness}, evaluated by
-$\frac{\hat{m}}{\widetilde{m}}$, which quantifies how precisely the clustering
-scheme groups similar segments.  
-
-Figure~7(a) shows the results of the FSL dataset, where we
-consider four FSL users (e.g., User004, User007, User015 and User028) for
-saving evaluation time. The clustering closeness first increases with $k$,
-since the number (i.e., $\widetilde{m}$) of clusters decreases and
-approximates $m$. When $k$ increases further, the number of clusters drops
-away from $m$, and leads to the increase of clustering closeness.  In
-addition, we observe that the clustering correctness gradually decreases with
-$k$, because some of non-similar segments (i.e., their minimum chunk hashes are
-different) are aggregated into the same cluster. Both results suggest that we
-can configure an appropriate $k$ to balance the closeness and correctness of
-clustering. For example, when we set $k$ = 0.65 for User015, the corresponding
-closeness and correctness are 1.0\% and 94.2\%, respectively. This implies
-that the results of the clustering scheme  highly approximates
-those of real classification.             
-
-{\bf Observation (7) --} {\em By configuring an appropriate $k$ for
-clustering, we  approximate the results of  classifying segments, without the knowledge of  minimum chunk hash in each
-segment.}   
-
-Figure~7(b) shows the results of the VM dataset. We observe
-that the clustering closeness and correctness of all VM users have  similar
-tendencies with those of FSL users. When we configure $k$ = 0.8, the average
-clustering closeness of all VM users is only 3.0\%, while the corresponding
-clustering correctness is as high as 93.1\%.     
+Figure~7(b) shows the results of the VM dataset. We observe that the clustering closeness and correctness of all VM users have  similar tendencies with those of FSL users. When we configure $k$ = 0.8, the average clustering closeness of all VM users is only 3.0\%, while the corresponding clustering correctness is as high as 93.1\%.     
 
 
-\begin{figure*}[t]
+\begin{figure*}[!htbp]
 \centering
     \begin{tabular}{cc@{\hspace{0.3in}}p{.32\textwidth}}
     \includegraphics[width=.3\textwidth]{pic/clustering-impact-d-fsl.pdf} &
@@ -312,7 +197,6 @@ clustering correctness is as high as 93.1\%.
         &  ~~~ \medskip \\
         \multicolumn{2}{p{.64\textwidth}}{
             \footnotesize Fig.~7\quad Experiment 4 (Impact of parameter): impact of $k$ in the clustering scheme; for clustering closeness, the smaller the better; for clustering correctness, the larger the better. } &
-        % \multicolumn{2}{c}{\footnotesize Fig.~6\quad Experiment 4 (Impact of parameter): show impact of $d$ with clustering closeness and correctness; for clustering closeness, the smaller the better; for clustering correctness, the larger the better.} &
         {\footnotesize
 Fig.~8\quad Experiment 5 (Attack effectiveness):  severity of clustering-based attack in VM dataset.
         }
@@ -320,13 +204,8 @@ Fig.~8\quad Experiment 5 (Attack effectiveness):  severity of clustering-based a
     \hspace{-1in}
 \end{figure*}
 
-% \begin{figure}
-% 	\includegraphics[width=.48\textwidth]{pic/clustering-impact-d.pdf}
-% 	\caption{Experiment 6 (Impact of parameter).}
-% 	\label{fig:experiment-clustering-impact}
-% \end{figure}
 
-\begin{table*}[!t]
+\begin{table*}[!htbp]
 \small
     \caption{Experiment 6 (Security implications)}
 \renewcommand{\arraystretch}{1.2}
@@ -345,10 +224,6 @@ Fig.~8\quad Experiment 5 (Attack effectiveness):  severity of clustering-based a
     Picture & jpg, png &10-100KB  & 7.7\% & 6.7\% \\
 \hline
     Source & c, h, cpp, java, py & 10-20KB   & 17.1\% & 15.0\%\\
-% \hline
-	% Library & .a, .dll, .so \\
-% \hline
-	% Compression & .bz2, .gz, tar, rar, zip, 7z \\
 \hline
     Database & db, po & 20-700KB   & 2.6\% & 2.4\%\\
 \hline
@@ -386,7 +261,9 @@ Fig.~8\quad Experiment 5 (Attack effectiveness):  severity of clustering-based a
 
 
 
-\subsection{Experiment 5 (Attack effectiveness):} We now study the
+\subsection{实验5（攻击效果）} 
+
+We now study the
 effectiveness of the clustering-based attack. Due to the boundary shift of
 fixed-size segment, it has low effectiveness
 (about 1\% inference rate in our test) against the FSL dataset.  Thus, we use
@@ -426,20 +303,16 @@ average, for $w$ = 1, 2 and 3, the clustering-based attack infers 15.8\%,
 % This demonstrates high severity against
 % the VM disk images.   
 
-\section{Results of Security Implications}
+\section{攻击对安全影响的结果}
 \label{sec:case}
-We thus far have examined the severity of inference attacks by quantifying the
-correctly inferred ciphertext-plaintext pairs.  However, it remains an open
-issue that what are the security implications informed by these results and
-how the frequency analysis attacks bring actual damage. In the following
-experiment, we evaluate the security implications of our attacks based on the
-{\em raw inference rate}, defined as the percentage of raw data content
-affected by correctly inferred chunks.   
+
+We thus far have examined the severity of inference attacks by quantifying the correctly inferred ciphertext-plaintext pairs.  However, it remains an open issue that what are the security implications informed by these results and how the frequency analysis attacks bring actual damage. In the following experiment, we evaluate the security implications of our attacks based on the raw inference rate, defined as the percentage of raw data content affected by correctly inferred chunks.   
 
 
 
 
-\subsection{Experiment 6 (Security implications):}
+\subsection{实验6（安全隐患分析）}
+
 We first consider the distribution-based attack, and evaluate its raw
 inference rate against {\em different types} of files. We drive the evaluation
 using the FSL dataset, since only the FSL dataset includes file metadata (that
@@ -472,17 +345,15 @@ relative low raw inference rates.
 
 We examine the security implication of the clustering-based attack using the VM dataset. Specifically, we use the 11th  backup of each VM user  to infer original content in corresponding 13th VM backup. Since the VM dataset does not contain any metadata, we count the raw inference rate based on the  whole data content in each VM snapshot. Note that we filter all zero chunks in the count of raw inference rate, because they occupy a large fraction in VM disk images \cite{jin09}.           
 
-
-% switch to the clustering-based attack, and infer the content of the last (i.e., the 13th) VM backup based on the corresponding 11th backup. Since the VM dataset does not contain metadata, we evaluate the raw inference rate across different users. Specifically, like Experiment 7, we only consider segment-level attack for high precision, and count the raw inference rate based on the correctly inferred segments. Note that since VM images commonly contain a large fraction of zero chunks ,  we filter out the zero segments in our inferred raw content.    
-
 We use the same configuration of Experiment~5, and evaluate raw inference rate
 based on segment-level inference.  Table~\ref{tab:user}(b) shows the results
 for different users.  We observe that the clustering-based attack achieves high
 severity against the VM dataset. For example, it infers up to 30.8\% raw
 content of User6's VM backup. On average, the raw inference rate of all users
 is as high as 23.2\%.  
-% a relatively high raw inference rate.  On average, the raw inference rate is 23.2\% for all users. 
 
 {\bf Observation (9) --} {\em The clustering-based attack threatens the
 confidentiality of VM disk images. } 
+
+\section{本章小结}
 
