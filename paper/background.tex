@@ -28,7 +28,7 @@
 MLE可以实现为不同的实例化（参见章节：\ref{sec:RelatedWork}）。其中最受欢迎的是融合加密（CE）\citing{douceur2002reclaiming}，它已经在各种存储系统中实现\citing{adya2002farsite,ElephantDrive,MEGA,GNUP2P,Freenet,Cryptosphere,cox2002pastiche,storer2008secure,anderson2010fast}。 CE的主要思想是根据每个明文数据块的内容通过HASH函数（哈希函数）导出其对应的MLE密钥。这种方法可以确保具有相同内容的逻辑数据块加密得到的密文数据块始终一致，即可使用密文数据块的标签进行重复数据删除。但也存在部分MLE实例\citing{bellare2013message}允许将相同的明文加密成不同的密文。当然，他们确保用于重复数据删除的标签仍然来自明文，因此他们依然可以通过检查标签的相同性来执行重复数据删除。
  
 
-现有的MLE实例都建立在确定性加密这一概念的基础之上，确定性加密可以确保密文（或标签）从明文确定性地导出，与传统的对称加密相比，可以保留重复数据删除的有效性。虽然确定性加密提供了机密性保证，但是本文认为攻击者可以利用这种确定性来推断给定密文的原始明文。
+现有的MLE实例都建立在确定性加密这一概念的基础之上，确定性加密可以确保密文（或标签）从明文确定性地导出，与传统的对称加密相比，可以保留重复数据删除的有效性。虽然确定性加密提供了机密性保证，但是本文认为攻击者可以利用这种确定性来推理给定密文的原始明文。
 
 \subsection{理论上加密重复数据删除存在信息泄漏}
 
@@ -36,11 +36,11 @@ MLE可以实现为不同的实例化（参见章节：\ref{sec:RelatedWork}）�
 
 已有的研究工作已经探索了实际加密重复数据删除系统存在的的其他类型的泄漏\citing{ritzdorf2016information,li2017information}。首先，一些重复数据删除系统\citing{zhu2008avoiding,xia2011silo}   为了实现更高的性能，需要按照数据块在原始文件中出现的顺序来操作数据块；这暴露了铭文数据块的逻辑顺序，基于该逻辑顺序可以识别输入文件中每个数据块的位置。其次，一些工作\citing{douceur2002reclaiming,wilcox2008tahoe,keelveedhi2013dupless}为了降低存储开销，不会填充任何冗余的密文数据块，这暴露了原始明文数据块的数量信息，因为密文数据块应该与原始明文数据块具有相同的数量。
 
-在已有工作\citing{ritzdorf2016information,li2017information} 中，通过构建攻击原语来推断原始明文数据块\citing{li2017information} 或根据特定文件的存在\citing{ritzdorf2016information}来攻击加密重复数据删除方案。但现有的其他关于加密重复数据删除的工作仍未探索过如何基于推断得到的信息发起实际攻击。本文对加密重复数据删除的泄漏问题进行了全面研究，以求回答以下两个问题：
+在已有工作\citing{ritzdorf2016information,li2017information} 中，通过构建攻击原语来推理原始明文数据块\citing{li2017information} 或根据特定文件的存在\citing{ritzdorf2016information}来攻击加密重复数据删除方案。但现有的其他关于加密重复数据删除的工作仍未探索过如何基于推理得到的信息发起实际攻击。本文对加密重复数据删除的泄漏问题进行了全面研究，以求回答以下两个问题：
 %TODO: primitives如何翻译
 \begin{enumerate}
-    \item 如何在各种泄漏中通过启用基元来推断原始内容？
-    \item 以推断内容为基础的实际攻击的具体含义是什么？
+    \item 如何在各种泄漏中通过启用基元来推理原始内容？
+    \item 以推理内容为基础的实际攻击的具体含义是什么？
 \end{enumerate}
 
 \subsection{观察得到的实际系统中的泄漏}
@@ -67,7 +67,7 @@ MLE可以实现为不同的实例化（参见章节：\ref{sec:RelatedWork}）�
 
 频率分析已在一些已有的工作\citing{grubbs2016breaking,bindschaedler2018tao,zhang2016all,grubbs2016breaking,kellaris2016generic,pouliot2016shadow,durak2016else,naveed2015inference,cash2015leakage,islam2012access,lacharite2018improved}中用来构建攻击。例如针对数据库中的结构化关系数据的攻击，通过经典频率分析\citing{naveed2015inference}，探索表列的相关性或排序。
 
-本文旨在应用频率分析来探索加密重复数据删除的漏洞。 我们的重点不是解决如何获得用于推断攻击的相关明文。在统频率分析模式下，攻击者能够访问明文逻辑数据块集合M和密文逻辑数据块集合$C$（$M$和$C$包含重复的明文和密文数据块）。攻击者根据出现频率分别对$M$和$C$中的数据块进行排序，然后将$C$中的密文数据块映射为$M$中与其具有相同排名的明文数据块。
+本文旨在应用频率分析来探索加密重复数据删除的漏洞。 我们的重点不是解决如何获得用于推理攻击的相关明文。在统频率分析模式下，攻击者能够访问明文逻辑数据块集合M和密文逻辑数据块集合$C$（$M$和$C$包含重复的明文和密文数据块）。攻击者根据出现频率分别对$M$和$C$中的数据块进行排序，然后将$C$中的密文数据块映射为$M$中与其具有相同排名的明文数据块。
 
 \section{本章小结}
 

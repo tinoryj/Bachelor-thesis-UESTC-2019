@@ -19,7 +19,7 @@
 
 \section{对（加密）重复数据删除的攻击} 
 
-除了离线暴力攻击之外，之前的研究还考虑了针对重复数据删除存储的各种攻击，此类攻击通常也适用于加密重复数据删除。例如，侧信道攻击\citing{harnik2010side,halevi2011proofs}使攻击者可以利用重复数据删除的运作模式来推断目标用户上传文件的具体内容，或者在客户端重复数据删除中获取未经授权的访问权限；例如，2010年针对“Dropbox”成功发起了侧通道攻击（以及其他相关攻击）\citing{mulazzani2011dark}。重复伪造攻击\citing{bellare2013message}通过利用不一致的标签破坏了消息的完整性。Ritzdorf等人在其工作中利用数据块大小的泄漏来推断文件的存在性\citing{ritzdorf2016information}。基于数据块局部性的攻击\citing{li2017information}利用频率分析来推断密文数据块-明文数据块对。本文的工作在推理攻击的已有工作\citing{ritzdorf2016information,li2017information}，通过利用各种类型的泄漏给出了针对加密重复数据删除的推理攻击的更深入研究。
+除了离线暴力攻击之外，之前的研究还考虑了针对重复数据删除存储的各种攻击，此类攻击通常也适用于加密重复数据删除。例如，侧信道攻击\citing{harnik2010side,halevi2011proofs}使攻击者可以利用重复数据删除的运作模式来推理目标用户上传文件的具体内容，或者在客户端重复数据删除中获取未经授权的访问权限；例如，2010年针对“Dropbox”成功发起了侧通道攻击（以及其他相关攻击）\citing{mulazzani2011dark}。重复伪造攻击\citing{bellare2013message}通过利用不一致的标签破坏了消息的完整性。Ritzdorf等人在其工作中利用数据块大小的泄漏来推理文件的存在性\citing{ritzdorf2016information}。基于数据块局部性的攻击\citing{li2017information}利用频率分析来推理密文数据块-明文数据块对。本文的工作在推理攻击的已有工作\citing{ritzdorf2016information,li2017information}，通过利用各种类型的泄漏给出了针对加密重复数据删除的推理攻击的更深入研究。
    
 \section{防御机制} 
 
@@ -31,3 +31,6 @@
 \section{推理攻击}  
 
 已有工作已经提出了几种针对加密数据库\citing{grubbs2017leakage,bindschaedler2018tao,kellaris2016generic,durak2016else,naveed2015inference,lacharite2018improved}和关键字搜索\citing{zhang2016all,grubbs2016breaking,pouliot2016shadow,cash2015leakage,islam2012access}的推理攻击方案。它们都利用确定性加密的性质来识别不同类型的泄漏。本文的研究内容与它们的不同之处在于专门研究了针对加密重复数据删除的频率分析推理攻击。
+
+\section{本章小结}
+本章介绍了现有加密重复数据删除中的各种安全机制与攻击手段，并分析了本文的工作与已有工作的不同之处。
