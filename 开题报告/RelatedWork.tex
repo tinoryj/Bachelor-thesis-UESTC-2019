@@ -1,0 +1,36 @@
+\chapter{相关工作}
+\label{sec:RelatedWork}
+
+\section{MLE的应用}
+
+回顾\ref{sec:background}，MLE\citing{bellare2013message}正式确立了加密重复数据删除的加密方案基础。第一个发布的MLE实例是收敛加密（CE）\citing{douceur2002reclaiming}，它使用明文的加密哈希及其对应的密文作为MLE密钥和标签。其他CE的变体包括：散列收敛加密（HCE）\citing{bellare2013message}，它从明文中导出标记，同时仍然使用明文的哈希作为MLE密钥；随机收敛加密（RCE）\citing{bellare2013message}，用新的随机密钥加密明文以形成非确定性密文，通过从明文的哈希中导出的MLE密钥保护随机密钥，并附加来自明文的确定性标签以实现数据块重复性的检查；收敛扩散加密（CD）\citing{li2015cdstore}，它通过使用明文的加密哈希作为秘密共享算法的随机种子，将CE扩展到秘密共享。由于所有上述实例仅从明文中获取MLE密钥和（或）标签，如果明文是可预测的（即，所有可能的明文的总数量有限），它们很容易受到离线暴力攻击\citing{keelveedhi2013dupless}的影响，因为攻击者可以从所有可能的明文中穷举地导出MLE密钥和标签，并检查是否存在某种明文被加密到目标密文（在CE，HCE和CD中）或映射到目标标签（在RCE中）。
+
+暴力攻击已经被证明可以用来获取文件信息\citing{wilcox2008drew}。为了防止离线暴力攻击，DupLESS\citing{keelveedhi2013dupless}通过在独立密钥服务器中管理MLE密钥来实现服务器辅助MLE，从而确保无法从离线消息中获得每个MLE密钥。DupLESS采用两种机制来实现强大的MLE密钥管理：
+\begin{enumerate}
+    \item \textbf{无关密钥生成：}
+        
+        DupLESS中客户端总是在不向密钥服务器显示消息内容的前提下从密钥服务器获得确定性MLE密钥。
+    \item \textbf{密钥生成频率限制：}
+        
+        DupLESS中的密钥服务器通过限制来自客户端的密钥生成请求频率，防止在线暴力攻击。
+\end{enumerate}
+
+其他研究扩展了服务器辅助MLE的各个方面，例如可靠的密钥管理\citing{duan2014distributed}，透明定价\citing{armknecht2015transparent}，点对点密钥管理\citing{liu2015secure}和密钥转换（所属权变更） \citing{qin2017design}。但是服务器辅助MLE仍然建立在确定性加密的基础之上，现有的MLE实例（基于CE或服务器辅助MLE）都容易受到本文研究的推理攻击方法的攻击。
+
+\section{对（加密）重复数据删除的攻击} 
+
+除了离线暴力攻击之外，之前的研究还考虑了针对重复数据删除存储的各种攻击，此类攻击通常也适用于加密重复数据删除。例如，侧信道攻击\citing{harnik2010side,halevi2011proofs}使攻击者可以利用重复数据删除的运作模式来推理目标用户上传文件的具体内容，或者在客户端重复数据删除中获取未经授权的访问权限；例如，2010年针对“Dropbox”成功发起了侧通道攻击（以及其他相关攻击）\citing{mulazzani2011dark}。重复伪造攻击\citing{bellare2013message}通过利用不一致的标签破坏了消息的完整性。Ritzdorf等人在其工作中利用数据块大小的泄漏来推理文件的存在性\citing{ritzdorf2016information}。基于数据块局部性的攻击\citing{li2017information}利用频率分析来推理密文数据块-明文数据块对。本文的工作在推理攻击的已有工作\citing{ritzdorf2016information,li2017information}，通过利用各种类型的泄漏给出了针对加密重复数据删除的推理攻击的更深入研究。
+   
+\section{防御机制} 
+
+ 在\ref{sec:Countermeasure}中讨论了针对加密重复数据删除的频率，顺序和大小泄漏的应对对策。而其他防御机制旨在防范其他类型的攻击。
+ 
+如上所述，服务器辅助的MLE\citing{keelveedhi2013dupless}可以抵御离线暴力攻击。服务器端重复数据删除\citing{li2015cdstore,harnik2010side,armknecht2017side}和所有权证明\citing{xu2013weak,di2012boosting,halevi2011proofs}可以抵御侧信道攻击。服务器端标签生成\citing{douceur2002reclaiming,keelveedhi2013dupless}和受保护的解密\citing{bellare2013message}可以抵御重复检查攻击。
+
+
+\section{推理攻击}  
+
+已有工作已经提出了几种针对加密数据库\citing{grubbs2017leakage,bindschaedler2018tao,kellaris2016generic,durak2016else,naveed2015inference,lacharite2018improved}和关键字搜索\citing{zhang2016all,grubbs2016breaking,pouliot2016shadow,cash2015leakage,islam2012access}的推理攻击方案。它们都利用确定性加密的性质来识别不同类型的泄漏。本文的研究内容与它们的不同之处在于专门研究了针对加密重复数据删除的频率分析推理攻击。
+
+\section{本章小结}
+本章介绍了现有加密重复数据删除中的各种安全机制与攻击手段，并分析了本文的工作与已有工作的不同之处。
