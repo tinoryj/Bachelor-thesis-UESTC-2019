@@ -83,7 +83,7 @@
 
 频率分析\citing{katz1996handbook}是一种针对确定性加密（deterministic encryption）的密码分析技术，被应用于破解匿名查询日志\citing{kumar2007anonymizing}、破坏关键词隐私\citing{cash2015leakage,grubbs2016breaking,islam2012access,pouliot2016shadow,zhang2016all}、重构密文数据库记录\citing{naveed2015inference,bindschaedler2018tao,durak2016else,grubbs2017leakage,kellaris2016generic,lacharite2018improved} 等实际攻击。本项目研究针对数据块的频率分析攻击，与现有攻击目标（查询日志条目、关键词、数据库记录等）相比，数据块数量极其庞大（呈千万级），并且大量数据块具有相同频率，致使当前的频率分析攻击算法难以适用。
 
-面向加密重复数据删除，已有工作\citing{li2017information}提出了基于数据块局部性（chunk locality）\citing{zhu2008avoiding,lillibridge2009sparse,xia2011silo}的频率分析攻击。本课题的部分技术路线（\cref{sec:技术路线}）就是在该工作\citing{li2017information}的基础上提出来的，并进一步研究频率分析攻击的准确率和依赖条件，以及面向真实系统的攻击原型。除了频率分析和暴力破解（\cref{sec:加密重复数据删除}）之外，加密重复数据删除还可能遭受边信道攻击\citing{harnik2010side,halevi2011proofs,mulazzani2011dark}、副本伪造攻击\citing{bellare2013message}、基于数据块长度的攻击\citing{ritzdorf2016information}等威胁，但这些攻击可通过所有权证明\citing{halevi2011proofs}、守卫解密(guarded decryption)\citing{bellare2013message}、固定长度分块等措施进行防御，而本文所研究的频率分析攻击超出了现有保护措施的防御范畴。
+面向加密重复数据删除，已有工作\citing{li2017information}提出了基于数据块局部性（chunk locality）\citing{zhu2008avoiding,lillibridge2009sparse,xia2011silo}的频率分析攻击。本课题的部分技术路线（\ref{sec:技术路线}）就是在该工作\citing{li2017information}的基础上提出来的，并进一步研究频率分析攻击的准确率和依赖条件，以及面向真实系统的攻击原型。除了频率分析和暴力破解（\ref{sec:加密重复数据删除}）之外，加密重复数据删除还可能遭受边信道攻击\citing{harnik2010side,halevi2011proofs,mulazzani2011dark}、副本伪造攻击\citing{bellare2013message}、基于数据块长度的攻击\citing{ritzdorf2016information}等威胁，但这些攻击可通过所有权证明\citing{halevi2011proofs}、守卫解密(guarded decryption)\citing{bellare2013message}、固定长度分块等措施进行防御，而本文所研究的频率分析攻击超出了现有保护措施的防御范畴。
 
 \section{课题的研究内容、研究目标、以及拟解决的关键问题}
 \subsection{研究内容}
@@ -143,7 +143,7 @@
 \end{figure}
 
 
-基于此，攻击流程如图\ref{fig:基于数据块局部性的频率分析攻击}所示：首先，对$C$和$M$应用传统频率分析（\cref{sec:传统频率分析攻击}），将获得的若干组高频明密文对加入推测结果集合 $G$；然后，每次从$G$中选取一组明密文对$(M,C)$，分别对其左右相邻的明文和密文数据块集合$L_M[M]$和$L_C[C]$，以及$R_M[M]$和$R_C[C]$实施频率分析，并将获得的高频明密文对也加入$G$；继续对$G$中的明密文对进行基于相邻数据块的频率分析，直至所有明密文对都被处理。
+基于此，攻击流程如图\ref{fig:基于数据块局部性的频率分析攻击}所示：首先，对$C$和$M$应用传统频率分析（\ref{sec:传统频率分析攻击}），将获得的若干组高频明密文对加入推测结果集合 $G$；然后，每次从$G$中选取一组明密文对$(M,C)$，分别对其左右相邻的明文和密文数据块集合$L_M[M]$和$L_C[C]$，以及$R_M[M]$和$R_C[C]$实施频率分析，并将获得的高频明密文对也加入$G$；继续对$G$中的明密文对进行基于相邻数据块的频率分析，直至所有明密文对都被处理。
 
 为了验证攻击效果，定义推测率为正确推测出原始明文的(不同)密文数据块个数与$C$中(不同)密文数据块总个数的比率。在基于真实数据集的实验验证中，攻击方案能够达到17.8\%推测率，远远高于传统频率分析方法的0.0001\%推测率。
 
@@ -174,4 +174,15 @@
 
 \subsection{研究条件可行}
 
-前期基于数据块局部性的频率分析攻击方案给出了本课题研究两种新型频率分析攻击方法的基本理论和工具基础。
+前期基于数据块局部性的频率分析攻击方案给出了本课题研究两种新型频率分析攻击方法的基本理论和工具基础。在原有方案上改进即可用于本课题研究。研究者在本科阶段深入钻研了CDStore、REED、SDFS等加密重复数据删除系统，以及前期基于数据块局部性的频率分析攻击方案的理论和工具实现。这些经验可以帮助设计新型频率分析方法以及其在真实系统中的实践。
+
+\section{本文特色与创新之处}
+
+本研究的特色与创新之处有以下几点：
+
+\begin{enumerate}
+    \item 研究针对加密重复数据删除提出了两种新型的频率分析攻击方法。除了利用由于加密重复数据删除具有确定性导致的频率泄漏之外，两种攻击都利用重复数据删除工作负载的特性来增加频率分析攻击的有效性。
+    \item 本文研究使用多个真实数据集（包括长期备份\citing{sun2016long,FSL14}，Windows文件系统快照\citing{meyer2012study}和VM磁盘映像\citing{li2016cdstore,qin2017design}）以及开源重复数据删除系统SDFS\citing{SDFS}、Destor\citing{Destor}，评估两种新型频率分析攻击方法和基本频率分析攻击方法的实际效果。通过评估频率攻击方法的攻击结果，进一步分析本频率分析攻击方法对实际加密重复数据删除带来的安全性影响。
+    \item 本研究讨论了减少加密重复数据删除中信息泄漏的可能方案。
+\end{enumerate}
+
