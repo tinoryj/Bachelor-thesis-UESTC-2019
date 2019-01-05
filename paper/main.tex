@@ -6,7 +6,8 @@
 \usepackage[utf8]{inputenc}
 \usepackage{cleveref}
 \crefname{section}{§}{§§}
-
+\newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}  
+\usepackage{longtable}
 %\usepackage{algorithm,algpseudocode}
 %\usepackage{caption}
 %----------
@@ -61,10 +62,8 @@ Encrypted deduplication aims to address security and storage efficiency in large
 \bibliography{reference}
 
 \thesisappendix
-
+\input{appendix}
 %\thesisloadachievement{publications}
-
-
 \thesistranslationoriginal
 
 翻译的文献内容是2017年ASIA CCS会议上由Armknecht, F., Boyd, C., Davies, G. T., Gjsteen, K., \& Toorani, M.完成的Side Channels in Deduplication: Trade-offs between Leakage and Efficiency的引言部分，该部分的电子版原始内容截图如下
